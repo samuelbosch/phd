@@ -23,9 +23,11 @@ marspec.vars = list.files(path=marspec.dir, pattern="\\.asc$", full.names=TRUE)
 
 env = stack (paste(marspec.dir, "bathy_10m.asc", sep="/"), paste(marspec.dir, "biogeo13_sst_mean_10m.asc", sep="/"))
 
+respName = "fucus.serratus"
+
 biomod.data = BIOMOD_FormatingData(resp.var = points,
                                    expl.var = env, # explanatory variable(s)
-                                   resp.name ="fucus_serratus",
+                                   resp.name =respName,
                                    resp.xy=coord, # locations
                                    PA.nb.rep = 1, # number of pseudo absence samplings
                                    PA.nb.absences = 10000, # 10000 pseudo absence locations
@@ -33,6 +35,8 @@ biomod.data = BIOMOD_FormatingData(resp.var = points,
                                    na.rm = TRUE) # remove points with missing environmental data 
 
 biomod.options = BIOMOD_ModelingOptions()
+
+# setwd("D:/a/Google Drive/predictors/1.tryout/3.output")
 
 biomod.model = BIOMOD_Modeling(
             data=biomod.data,
@@ -46,5 +50,25 @@ biomod.model = BIOMOD_Modeling(
             SaveObj = TRUE, 
             rescal.all.models = TRUE, 
             do.full.models = FALSE, 
-            modeling.id = paste("fucus_Serratus","20130604",sep="_")
+            modeling.id = paste("fucus_Serratus","20130604_1458",sep="_")
         )
+
+## get model evaluations
+capture.output(getModelsEvaluations(biomod.model), 
+        file=file.path(respName, paste(respName,"_formal_models_evaluation.txt", sep="")))
+## get variable importance
+capture.output(getModelsVarImport(biomod.model), 
+        file=file.path(respName, paste(respName,"_formal_models_variables_importance.txt", sep="")))
+
+## Make projections on current variable 
+
+biomod.proj = BIOMOD_Projection( 
+        modeling.output = biomod.model,
+        new.env = env, 
+        proj.name = 'current', 
+        selected.models = 'all', 
+        binary.meth = 'TSS', 
+        compress = "gzip", 
+        build.clamping.mask = FALSE, 
+        keep.in.memory = FALSE,
+        output.format = '.img')
