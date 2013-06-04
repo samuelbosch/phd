@@ -34,15 +34,36 @@ biomod.data = BIOMOD_FormatingData(resp.var = points,
                                    PA.strategy = "random", # must be  ‘random’, ‘sre’, ‘disk’ or ‘user.defined’
                                    na.rm = TRUE) # remove points with missing environmental data 
 
-biomod.options = BIOMOD_ModelingOptions()
+# TODO review the maxent options
+biomod.options = BIOMOD_ModelingOptions(
+  MAXENT = list(path_to_maxent.jar = "D:/a/prog/maxent",
+                maximumiterations = 200,
+                visible=FALSE,
+                linear=TRUE,
+                quadratic = TRUE,
+                product = TRUE,
+                threshold = TRUE,
+                hinge = TRUE,
+                lq2lqptthreshold = 80,
+                l2lqthreshold = 10,
+                hingethreshold = 15,
+                beta_threshold = -1,
+                beta_categorical = -1,
+                beta_lqp = -1,
+                beta_hinge = -1,
+                defaultprevalence = 0.5
+    ))
 
-# setwd("D:/a/Google Drive/predictors/1.tryout/3.output")
+wd = getwd()
+setwd("D:/a/Google Drive/predictors/1.tryout/3.output")
+
+modelId = paste("fucus_Serratus",format(Sys.time(), format="%Y%m%d_%H%M%S"),sep="_")
 
 biomod.model = BIOMOD_Modeling(
             data=biomod.data,
             models=c('RF', 'MAXENT'),
             models.options = biomod.options,
-            NbRunEval=3, 
+            NbRunEval=1, 
             DataSplit=50, 
             Prevalence=0.5, 
             VarImport=3, 
@@ -50,15 +71,15 @@ biomod.model = BIOMOD_Modeling(
             SaveObj = TRUE, 
             rescal.all.models = TRUE, 
             do.full.models = FALSE, 
-            modeling.id = paste("fucus_Serratus","20130604_1458",sep="_")
+            modeling.id = modelId
         )
 
 ## get model evaluations
 capture.output(getModelsEvaluations(biomod.model), 
-        file=file.path(respName, paste(respName,"_formal_models_evaluation.txt", sep="")))
+        file=file.path(respName, paste(modelId,"_formal_models_evaluation.txt", sep="")))
 ## get variable importance
 capture.output(getModelsVarImport(biomod.model), 
-        file=file.path(respName, paste(respName,"_formal_models_variables_importance.txt", sep="")))
+        file=file.path(respName, paste(modelId,"_formal_models_variables_importance.txt", sep="")))
 
 ## Make projections on current variable 
 
@@ -72,3 +93,5 @@ biomod.proj = BIOMOD_Projection(
         build.clamping.mask = FALSE, 
         keep.in.memory = FALSE,
         output.format = '.img')
+
+setwd(wd)
