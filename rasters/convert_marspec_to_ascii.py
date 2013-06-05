@@ -51,3 +51,4 @@ def rename_biogeo_grids():
 
 if __name__ == '__main__':
     create_bat()
+    ## rename_biogeo_grids
