@@ -40,5 +40,5 @@ apikeys.py
 # Visual Studio
 obj
 packages
-.suo
+*.suo
 
