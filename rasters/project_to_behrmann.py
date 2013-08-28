@@ -6,7 +6,7 @@ to be able to run the generated bat file you should have gdalwarp in your path o
 
 import os
 
-root = r"D:\a\data\marspec\MARSPEC_10m\ascii"
+root = r"D:\a\data\marspec\MARSPEC_30s\ascii"
 output = os.path.abspath(os.path.join(root, r'..\ascii_equalarea'))
 
 

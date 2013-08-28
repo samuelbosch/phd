@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Web
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pipe", "Pipe\Pipe.fsproj", "{B1E93A0E-ED6C-40C1-B412-84D2B64ED6FC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B1E93A0E-ED6C-40C1-B412-84D2B64ED6FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1E93A0E-ED6C-40C1-B412-84D2B64ED6FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1E93A0E-ED6C-40C1-B412-84D2B64ED6FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1E93A0E-ED6C-40C1-B412-84D2B64ED6FC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -59,9 +59,25 @@ setwd("D:/a/Google Drive/predictors/1.tryout/3.output")
 
 modelId = paste("fucus_Serratus",format(Sys.time(), format="%Y%m%d_%H%M%S"),sep="_")
 
+# biomod.model = BIOMOD_Modeling(
+#             data=biomod.data,
+#             models=c('RF', 'MAXENT'),
+#             models.options = biomod.options,
+#             NbRunEval=1, 
+#             DataSplit=50, 
+#             Prevalence=0.5, 
+#             VarImport=3, 
+#             models.eval.meth = c('TSS','ROC'), 
+#             SaveObj = TRUE, 
+#             rescal.all.models = TRUE, 
+#             do.full.models = FALSE, 
+#             modeling.id = modelId
+#         )
+
+biomod.options = BIOMOD_ModelingOptions()
 biomod.model = BIOMOD_Modeling(
             data=biomod.data,
-            models=c('RF', 'MAXENT'),
+            models=c('RF'),
             models.options = biomod.options,
             NbRunEval=1, 
             DataSplit=50, 

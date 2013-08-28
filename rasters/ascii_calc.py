@@ -1,13 +1,13 @@
 import os
 
-root= r'D:\a\data\marspec\MARSPEC_30s\ascii'
-inr = os.path.join(root, 'bathy_30s.asc')
-outr = os.path.join(root, 'bathy_30s_plus_200.asc')
+root= r'D:\a\data\marspec\MARSPEC_10m\ascii'
+inr = os.path.join(root, 'bathy_10m.asc')
+outr = os.path.join(root, 'bathy_10m_plus_300.asc')
 
 def calc(x, nodata):
     if x == nodata:
         return x
-    elif x >= -200:
+    elif x >= -300:
         return 1
     else:
         return 0
