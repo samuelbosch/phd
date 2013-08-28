@@ -1,0 +1,29 @@
+{
+  "manifest_version": 2,
+
+  "name": "Get paper",
+  "version": "1.0",
+  "description": "One click download of research papers pdf's to a specified directory.",
+  "background": {"scripts": ["scripts/background.js"]},
+
+  "permissions": [
+  "tabs", "downloads", "*://*/*"
+  ],
+  "page_action": {
+    "default_icon": { "19" : "images/icon19.png","38": "images/icon38.png" },
+    "default_title" : "Get Paper",
+    "default_popup": "popup.html"
+    },
+
+    "content_scripts" : [
+    {
+      "matches" : [
+      "http://*/*", 
+      "https://*/*"
+      ],
+      "js" : ["scripts/contentscript.js"],
+      "run_at" : "document_idle",
+      "all_frames" : false
+    }
+    ]
+  }
