@@ -43,10 +43,33 @@ Benchmark results
 
 Big file benchmark results
 - without compression:
-7-9 minutes for loading one MARSPEC 30seconds layer 
-1.4 GB ram usage
-1.5 seconds for retrieving 10.000 random values from 1 MARSPEC layer
-15 seconds for retrieving 100.000 random values from 1 MARSPEC layer
+* 7-9 minutes for loading one MARSPEC 30seconds layer 
+* 1.4 GB ram usage
+* 1.5 seconds for retrieving 10.000 random values from 1 MARSPEC layer
+* 15 seconds for retrieving 100.000 random values from 1 MARSPEC layer
+
+Marspec 10m benchmark results
+- without compression:
+* 1 second to load one file
+* <4mb RAM memory per MARSPEC 10m layer (original ASCII file: 12MB)
+* 50 seconds for retrieving 100.000 random values from 40 layers
+
+Benchmarks alternative options
+-- (untuned) PostgreSQL + PostGIS
+* 25seconds to retrieve 1000 values for one MARSPEC 10m layer (stored in the database)
+* 20seconds to retrieve 500 values for two MARSPEC 10m layers (stored in the database)
+* total RAM usage 15mb
+
+## ALTERNATIVES AND IDEAS
+
+- store raster in POSTGIS
+- use protobuf-net https://code.google.com/p/protobuf-net/
+- use the research from Daniel Lemire 
+    http://lemire.me/blog/archives/2012/09/12/fast-integer-compression-decoding-billions-of-integers-per-second/ 
+    http://arxiv.org/abs/1209.2137
+    https://github.com/lemire/FastPFor
+    https://github.com/lemire/JavaFastPFOR/
+
 
 *)
 
@@ -68,8 +91,8 @@ module RasterCompressed =
     open Microsoft.FSharp.Core.Operators
     type Row = int []
     type Value = int16
-    let convertToValue = Checked.int16
-    let convertFromValue = int32
+    let convertToDeltaType = Checked.int16
+    let convertFromDeltaType = int32
     type DeltaRow = { Start:int option; Delta: Value []}
     type RasterInfo = {ColumnCount:int; RowCount:int; ValueScaleFactor:float; Nodata:string}
     type RasterData = { Bitmap: BitArray []; Data:DeltaRow []}
@@ -85,11 +108,13 @@ module RasterCompressed =
             let mutable previous = start
             for i=0 to row.Length-2 do
                 current <- row.[i+1]
-                if current-previous > (int System.Int16.MaxValue) || current-previous < (int System.Int16.MinValue) then
+                // TODO improve this by e.g. making the type dynamic or doing the type conversion in the compression step
+                let mutable diff = current-previous
+                if diff > (int System.Int16.MaxValue) || diff < (int System.Int16.MinValue) then
                     printfn "OVERFLOW in delta %d %d" current previous
-                else
-                    delta.[i] <- convertToValue (current-previous) // check for overloads
-                    previous <- current
+                    if diff > (int System.Int16.MaxValue) then diff <- (int System.Int16.MaxValue) else diff <- (int System.Int16.MinValue)
+                delta.[i] <- convertToDeltaType (diff) // check for overloads
+                previous <- current
             { Start=Some(start) ; Delta=delta }
         else
             { Start=None ; Delta=Array.zeroCreate 0 }
@@ -100,7 +125,7 @@ module RasterCompressed =
             row.[0] <- dr.Start.Value
             let mutable temp = dr.Start.Value
             for i=1 to dr.Delta.Length do
-                temp <- temp + (convertFromValue dr.Delta.[i-1])
+                temp <- temp + (convertFromDeltaType dr.Delta.[i-1])
                 row.[i] <- temp
             row
         else 
@@ -153,8 +178,10 @@ module RasterCompressed =
 
         let info = {ColumnCount=colCount; RowCount=rowCount; ValueScaleFactor=valueScaleFactor; Nodata=nodata}
         let splitLine (x:string) = x.Trim([|' '; '\n'|]).Split([|' '|])
+        let values = lines.Skip(6)
+
         let bitmap, deltas = 
-            lines.Skip(6) 
+            values
             |> Seq.map (splitLine >> (parseRow info))
             |> Array.ofSeq
             |> Array.unzip
@@ -165,7 +192,7 @@ module RasterCompressed =
     let benchmarkLoad p s =
         let memBefore = GC.GetTotalMemory(true) 
         let info, data = OutlierAlgorithms.timeit "loadAscii" (loadAscii p) s
-        printfn "Memory usage %d" ((GC.GetTotalMemory(true) - memBefore) / 1000L)
+        printfn "Memory usage %d for path %s" ((GC.GetTotalMemory(true) - memBefore) / 1000L) p
         info,data
 
     let test() = 
@@ -232,6 +259,40 @@ module RasterCompressed =
             sw.Stop()
             arr.[i] <- sw.ElapsedMilliseconds
         let filtered = Array.filter (fun x -> x > 1L) arr
+        printfn "avg %f" (Array.averageBy float arr)
+        printfn "min %d" (Array.min arr)
+        printfn "max %d" (Array.max arr)
+        printfn "sum %d" (Array.sum arr)
+    
+    open System.IO
+    let benchmark_marspec_10m() =
+        let root = @"D:\a\data\marspec\MARSPEC_10m\ascii\"
+        let paths = Directory.GetFiles(root, "*.asc")
+        // marspec is already scaled
+        let load p = benchmarkLoad p 1.0
+        
+        let marspec = paths |> Array.map load
+             
+
+        let r = new System.Random(1)
+        let sw = new System.Diagnostics.Stopwatch()
+        let len = 1000
+        let arr : int64 [] = Array.zeroCreate len
+        let info1 = fst (marspec.First())
+        let maxX, maxY = info1.ColumnCount, info1.RowCount
+
+        for i=0 to len-1 do
+            sw.Restart()
+            for j=0 to 100 do
+                let x = r.Next(1, maxX) * 1<px>
+                let y = r.Next(1, maxY) * 1<px>
+                
+                Array.map (fun (info, data) -> getValue info data x y) marspec
+                |> ignore
+                
+            sw.Stop()
+            arr.[i] <- sw.ElapsedMilliseconds
+
         printfn "avg %f" (Array.averageBy float arr)
         printfn "min %d" (Array.min arr)
         printfn "max %d" (Array.max arr)

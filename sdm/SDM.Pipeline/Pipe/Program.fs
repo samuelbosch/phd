@@ -56,7 +56,8 @@ module Program =
 
         //ignore (RasterCompressed.test())
         //RasterCompressed.benchmark()
-        RasterCompressed.benchmarkBigFile()
+        //RasterCompressed.benchmarkBigFile()
+        RasterCompressed.benchmark_marspec_10m()
 
         // main entry point return
         Console.WriteLine("Hit key to close")
