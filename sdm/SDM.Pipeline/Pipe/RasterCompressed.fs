@@ -54,22 +54,27 @@ Marspec 10m benchmark results
 * <4mb RAM memory per MARSPEC 10m layer (original ASCII file: 12MB)
 * 50 seconds for retrieving 100.000 random values from 40 layers
 
-Benchmarks alternative options
--- (untuned) PostgreSQL + PostGIS
-* 25seconds to retrieve 1000 values for one MARSPEC 10m layer (stored in the database)
-* 20seconds to retrieve 500 values for two MARSPEC 10m layers (stored in the database)
-* total RAM usage 15mb
+
 
 ## ALTERNATIVES AND IDEAS
 
-- store raster in POSTGIS
-- use protobuf-net https://code.google.com/p/protobuf-net/
 - use the research from Daniel Lemire 
     http://lemire.me/blog/archives/2012/09/12/fast-integer-compression-decoding-billions-of-integers-per-second/ 
     http://arxiv.org/abs/1209.2137
     https://github.com/lemire/FastPFor
     https://github.com/lemire/JavaFastPFOR/
+- use RASDAMAN http://www.rasdaman.org/
 
+Benchmarks alternative options
+
+- store raster in POSTGIS
+* 25seconds to retrieve 1000 values for one MARSPEC 10m layer (stored in the database)
+* 20seconds to retrieve 500 values for two MARSPEC 10m layers (stored in the database)
+* 29 seconds for 100000 values from 2 MARSPEC 10m layers (stored in database with tiles of size 54x27)
+* total RAM usage 15mb
+
+- use protobuf-net https://code.google.com/p/protobuf-net/
+    result: slower and memory usage * 3
 
 *)
 
@@ -91,14 +96,15 @@ module RasterCompressed =
     open Microsoft.FSharp.Core.Operators
     type Row = int []
     type Value = int16
+    
     let convertToDeltaType = Checked.int16
     let convertFromDeltaType = int32
     type DeltaRow = { Start:int option; Delta: Value []}
     type RasterInfo = {ColumnCount:int; RowCount:int; ValueScaleFactor:float; Nodata:string}
-    type RasterData = { Bitmap: BitArray []; Data:DeltaRow []}
-
-    let compress deltaRow = deltaRow //TODO
-    let uncompress deltaRow = deltaRow //TODO
+    
+//    type CompressedDelta = MemoryStream
+    type CompressedRow = DeltaRow
+    type RasterData = { Bitmap: BitArray []; Data:CompressedRow []}
     
     let toDeltaRow (row:Row) =
         if row.Length > 0 then
@@ -131,6 +137,11 @@ module RasterCompressed =
         else 
             Array.zeroCreate 0
 
+    let compress (row:Row) = 
+        toDeltaRow row
+    let decompress (deltaRow:CompressedRow) =
+        fromDeltaRow deltaRow
+
     let parseValue info (v:string) =
         if v <> info.Nodata then
             let scaledValue = info.ValueScaleFactor * (float v)
@@ -144,7 +155,6 @@ module RasterCompressed =
         let delta = 
             parsed 
             |> Array.choose id
-            |> toDeltaRow
             |> compress
         (bitmap,delta)
    
@@ -161,8 +171,7 @@ module RasterCompressed =
             let x = BitMap.countUpto x data.Bitmap.[y]
             let v = 
                 data.Data.[y]
-                |> uncompress
-                |> fromDeltaRow // TODO: make this faster by only converting delta's up to the needed index + even faster by storing also the end value and calculating from the back when X is near the end
+                |> decompress // TODO: make this faster by only converting delta's up to the needed index + even faster by storing also the end value and calculating from the back when X is near the end
                 |> (fun arr -> (Array.get arr x))
                 |> float
                 |> (/) <| (info.ValueScaleFactor) // rescale
@@ -297,3 +306,15 @@ module RasterCompressed =
         printfn "min %d" (Array.min arr)
         printfn "max %d" (Array.max arr)
         printfn "sum %d" (Array.sum arr)
+
+
+// PROTOBUF EXPERIMENT
+//    let compress (deltaRow:DeltaRow) = 
+//        let stream = new MemoryStream()
+//        ProtoBuf.Serializer.Serialize(stream, deltaRow)
+//        stream
+//
+//    let decompress (deltaRow:CompressedDelta) = 
+//        deltaRow.Position <- 0L
+//        let uncompressedRow = ProtoBuf.Serializer.Deserialize<DeltaRow>(deltaRow)
+//        uncompressedRow
