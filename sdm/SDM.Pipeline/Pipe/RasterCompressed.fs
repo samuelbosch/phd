@@ -100,10 +100,25 @@ module RasterCompressed =
 //    type Value = int16
 //    let convertToDeltaType = Checked.int16
     
-    type Value = int32
-    let convertToDeltaType = int32
     
-    let convertFromDeltaType = int32
+    let toUnsigned x = 
+        if x >= 0 then 
+            2*x
+        else
+            (-2*x) - 1
+    let toSigned x =
+        if x % 2 = 0 then
+            x/2
+        else
+            (x+1)/(-2)
+
+    type Value = int32
+    
+    let convertToDeltaType = toUnsigned >> int32
+    let convertFromDeltaType = int32 >> toSigned
+//    let convertToDeltaType = id
+//    let convertFromDeltaType = id
+
     type DeltaRow = { Start:int option; Delta: Value []}
     type RasterInfo = {ColumnCount:int; RowCount:int; ValueScaleFactor:float; Nodata:string}
     
@@ -111,8 +126,11 @@ module RasterCompressed =
     type CompressedRow = DeltaRow
     //type CompressedRow = {Start:int option; PositiveShift: int; Row: Value []}
 //    type CompressedRow = { Length:int; DeltaStart:int option; Row: Value []}
-    type RasterData = { Bitmap: BitArray []; Data:(int option*BitArray*CompressedRow) []}
+// delta²
+//    type RasterData = { Bitmap: BitArray []; Data:(int option*BitArray*CompressedRow) []}
+    type RasterData = { Bitmap: BitArray []; Data:CompressedRow []}
     
+
     let toDeltaRow (row:Row) =
         if row.Length > 0 then
             let start = row.[0]
@@ -144,8 +162,20 @@ module RasterCompressed =
         else 
             Array.zeroCreate 0
 
+    let getValueFromDeltaRow (dr:DeltaRow) =
+        if dr.Start.IsSome then
+            let row:Value [] = Array.zeroCreate (dr.Delta.Length+1)        
+            row.[0] <- dr.Start.Value
+            let mutable temp = dr.Start.Value
+            for i=1 to dr.Delta.Length do
+                temp <- temp + (convertFromDeltaType dr.Delta.[i-1])
+                row.[i] <- temp
+            row
+        else 
+            Array.zeroCreate 0
+
     //FastPFOR gives errors with negative numbers
-    let private codec:IntegerCODEC = new Composition( new FastPFOR(), new VariableByte()) :> IntegerCODEC
+    let private codec:IntegerCODEC = new Composition( new Simple9(), (*new FastPFOR(),*) new VariableByte()) :> IntegerCODEC
     let compressFastPFOR (deltaRow:DeltaRow) = 
         if deltaRow.Delta.Length > 0 then
             let inputoffset = new IntWrapper(0)
@@ -154,8 +184,9 @@ module RasterCompressed =
             codec.compress(deltaRow.Delta, inputoffset, deltaRow.Delta.Length, compressed, outputoffset)
         
 //        // we can repack the data: (optional)
-//        compressed = Arrays.copyOf(compressed,outputoffset.intValue());
-            { deltaRow with Delta = compressed }
+            let packed = Array.zeroCreate (outputoffset.intValue())
+            Array.Copy(compressed,packed, packed.Length);
+            { deltaRow with Delta = packed }
         else
             deltaRow
 
@@ -192,33 +223,19 @@ module RasterCompressed =
             parsed 
             |> Array.choose id
             |> compress
-
-        let (bitmap2, delta2) =
-            let parsed = delta.Delta |> Array.map (fun x -> (if x <> 0 then Some(x) else None))
-            let bitmap2 = parsed |> Array.map Option.isSome |> BitMap.init
-            let delta2 = parsed |> Array.choose id |> compress
-            bitmap2, delta2
-        (bitmap,(delta.Start, bitmap2,delta2))
+        (bitmap, delta)
+// delta2
+//        let (bitmap2, delta2) =
+//            let parsed = delta.Delta |> Array.map (fun x -> (if x <> 0 then Some(x) else None))
+//            let bitmap2 = parsed |> Array.map Option.isSome |> BitMap.init
+//            let delta2 = parsed |> Array.choose id |> compress
+//            bitmap2, delta2
+//        (bitmap,(delta.Start, bitmap2,delta2))
     
 
     let toIndex (v:int<px>) = (int v) - 1
 
     let isNodata x y data = not (data.Bitmap.[y].Get(x))
-
-//    let getValue info data x y = 
-//        let x = toIndex x
-//        let y = toIndex y
-//        if isNodata x y data then
-//            None
-//        else
-//            let x = BitMap.countUpto x data.Bitmap.[y]
-//            let v = 
-//                data.Data.[y]
-//                |> decompress info // TODO: make this faster by only converting delta's up to the needed index + even faster by storing also the end value and calculating from the back when X is near the end
-//                |> (fun arr -> (Array.get arr x))
-//                |> float
-//                |> (/) <| (info.ValueScaleFactor) // rescale
-//            Some(v)
 
     let getValue info data x y = 
         let x = toIndex x
@@ -227,18 +244,34 @@ module RasterCompressed =
             None
         else
             let x = BitMap.countUpto x data.Bitmap.[y]
-            let deltaStart, bitmap2, delta2 = data.Data.[y]
-            let x = BitMap.countUpto x bitmap2
-            let toDelta (row:Value[]) = {Start=deltaStart; Delta=row}
             let v = 
-                delta2
-                |> decompress info
-                |> toDelta
-                |> decompress info
+                data.Data.[y]
+                |> decompress info // TODO: make this faster by only converting delta's up to the needed index + even faster by storing also the end value and calculating from the back when X is near the end
                 |> (fun arr -> (Array.get arr x))
                 |> float
                 |> (/) <| (info.ValueScaleFactor) // rescale
             Some(v)
+
+            // delta²
+//    let getValue info data x y = 
+//        let x = toIndex x
+//        let y = toIndex y
+//        if isNodata x y data then
+//            None
+//        else
+//            let x = BitMap.countUpto x data.Bitmap.[y]
+//            let deltaStart, bitmap2, delta2 = data.Data.[y]
+//            let x = BitMap.countUpto x bitmap2
+//            let toDelta (row:Value[]) = {Start=deltaStart; Delta=row}
+//            let v = 
+//                delta2
+//                |> decompress info
+//                |> toDelta
+//                |> decompress info
+//                |> (fun arr -> (Array.get arr x))
+//                |> float
+//                |> (/) <| (info.ValueScaleFactor) // rescale
+//            Some(v)
     
     let loadAscii path valueScaleFactor =
         let lines = File.ReadLines(path)
