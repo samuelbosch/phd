@@ -81,8 +81,8 @@
     <Reference Include="IKVM.Runtime">
       <HintPath>..\ikvm\FastPFOR\IKVM.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="JavaFastPFOR-0.0.5">
-      <HintPath>..\ikvm\FastPFOR\JavaFastPFOR-0.0.5.dll</HintPath>
+    <Reference Include="JavaFastPFOR-0.0.4">
+      <HintPath>..\ikvm\FastPFOR\JavaFastPFOR-0.0.4.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics">
       <HintPath>..\packages\MathNet.Numerics.2.6.1\lib\net40\MathNet.Numerics.dll</HintPath>

@@ -54,10 +54,10 @@ module Program =
         //let occurrencePixels = RasterValue.getOccurrencePixels null @"D:\temp\obis"
         //printfn "%d pixels" occurrencePixels.LongLength
 
-        //ignore (RasterCompressed.test())
-        RasterCompressed.benchmark()
-        //RasterCompressed.benchmarkBigFile()
-        //RasterCompressed.benchmark_marspec_10m()
+        RasterCompressed.test()
+        //RasterCompressed.benchmark()
+        RasterCompressed.benchmarkBigFile()
+       //RasterCompressed.benchmark_marspec_10m()
 
         // main entry point return
         Console.WriteLine("Hit key to close")
