@@ -69,6 +69,21 @@
       <HintPath>..\packages\FSPowerPack.Parallel.Seq.Community.3.0.0.0\Lib\Net40\FSharp.PowerPack.Parallel.Seq.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="IKVM.OpenJDK.Core">
+      <HintPath>..\ikvm\FastPFOR\IKVM.OpenJDK.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.OpenJDK.Text">
+      <HintPath>..\ikvm\FastPFOR\IKVM.OpenJDK.Text.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.OpenJDK.Util">
+      <HintPath>..\ikvm\FastPFOR\IKVM.OpenJDK.Util.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.Runtime">
+      <HintPath>..\ikvm\FastPFOR\IKVM.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="JavaFastPFOR-0.0.5">
+      <HintPath>..\ikvm\FastPFOR\JavaFastPFOR-0.0.5.dll</HintPath>
+    </Reference>
     <Reference Include="MathNet.Numerics">
       <HintPath>..\packages\MathNet.Numerics.2.6.1\lib\net40\MathNet.Numerics.dll</HintPath>
       <Private>True</Private>
