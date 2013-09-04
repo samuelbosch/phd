@@ -56,6 +56,9 @@ Big file benchmark results
 * load time: 5 minutes (4 minutes with PSeq) (3.5 minutes with parseRow2 => not a huge time saving but the memory profile is flatter)
 * 550 ram usage
 * 25 seconds for retrieving 100.000 random values from 1 MARSPEC layer
+- with FastPFOR + VariableByte
+* 555 ram usage
+* 40 seconds for retrieving 100.000 random values from 1 MARSPEC layer
 
 Marspec 10m benchmark results
 - without compression:
@@ -65,8 +68,11 @@ Marspec 10m benchmark results
 - with Simple9 + VariableByte:
 * 1s load time per file: 
 * avg: <2MB ram usage per file
+* total RAM : 79mb
 * 55 seconds for retrieving 100.000 random values from 40 layers
-
+- with FastPFOR + VariableByte:
+* total RAM : 73mb
+* 70 seconds for retrieving 100.000 random values from 40 layers
 
 ## ALTERNATIVES AND IDEAS
 
@@ -79,6 +85,13 @@ Benchmarks alternative options
 * 20seconds to retrieve 500 values for two MARSPEC 10m layers (stored in the database)
 * 29 seconds for 100000 values from 2 MARSPEC 10m layers (stored in database with tiles of size 54x27)
 * total RAM usage 15mb
+
+- extract directly with R
+* 20 seconds to retrieve 100 values from 40 MARSPEC
+* 30 seconds to retrieve 1000 values from 40 MARSPEC
+* 35 seconds to retrieve 10000 values from 40 MARSPEC
+* 50 seconds to retrieve 100000 values from 40 MARSPEC
+* 120 seconds to retrieve 500000 values from 40 MARSPEC
 
 - use protobuf-net https://code.google.com/p/protobuf-net/
     result: slower and memory usage * 3
@@ -134,15 +147,19 @@ module RasterCompressed =
     
     type RasterData = { Bitmap: BitArray []; Data:CompressedRow []}
     
-    let private codec:IntegerCODEC = new Composition(new Simple9(), new VariableByte()) :> IntegerCODEC
+    //let private codec:IntegerCODEC = new Composition(new Simple9(), new VariableByte()) :> IntegerCODEC
+    
+    // FastPFOR is not threadsafe
+    let private codec = new System.Threading.ThreadLocal<_>(fun () -> (new Composition(new FastPFOR(), new VariableByte()) :> IntegerCODEC))
+    //let private codec = new System.Threading.ThreadLocal<_>(fun () -> (new Composition(new Simple9(), new VariableByte()) :> IntegerCODEC))
     
     let compressFastPFOR (deltaRow:DeltaRow) = 
         if deltaRow.Delta.Length > 0 then
             let inputoffset = new IntWrapper(0)
             let outputoffset = new IntWrapper(0)
             let compressed = Array.zeroCreate deltaRow.Delta.Length
-            codec.compress(deltaRow.Delta, inputoffset, deltaRow.Delta.Length, compressed, outputoffset)
-        
+            codec.Value.compress(deltaRow.Delta, inputoffset, deltaRow.Delta.Length, compressed, outputoffset)
+            
             // we can repack the data: (optional)
             let packed = Array.zeroCreate (outputoffset.intValue())
             Array.Copy(compressed,packed, packed.Length);
@@ -154,7 +171,7 @@ module RasterCompressed =
         if compressed.Delta.Length > 0 then
             let recoffset = new IntWrapper(0)
             let recovered = Array.zeroCreate (info.ColumnCount-1) (* deltas have one column less*)
-            codec.uncompress(compressed.Delta, new IntWrapper(0), compressed.Delta.Length, recovered, recoffset)
+            codec.Value.uncompress(compressed.Delta, new IntWrapper(0), compressed.Delta.Length, recovered, recoffset)
             { compressed with Delta=recovered}
         else
             compressed
