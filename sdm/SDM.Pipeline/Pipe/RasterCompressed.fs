@@ -45,6 +45,10 @@ Benchmark results
 * between 4 and 9MB RAM memory per BIO-ORACLE layer (original ASCII file: 56MB)
 * 10-20 seconds for retrieving 100.000 random values from 6 Bio-ORACLE layers
 * 7 seconds for retrieving 100.000 random values in parallel from 6 Bio-ORACLE layers
+* with FastPFOR + VariableByte
+* 3-4 seconds per layer
+* between 4 and 8MB RAM memory per BIO-ORACLE layer (original ASCII file: 56MB)
+* 9 seconds for retrieving 100.000 random values in parallel from 6 Bio-ORACLE layers
 
 Big file benchmark results
 - without compression:
@@ -150,8 +154,8 @@ module RasterCompressed =
     //let private codec:IntegerCODEC = new Composition(new Simple9(), new VariableByte()) :> IntegerCODEC
     
     // FastPFOR is not threadsafe
-    let private codec = new System.Threading.ThreadLocal<_>(fun () -> (new Composition(new FastPFOR(), new VariableByte()) :> IntegerCODEC))
-    //let private codec = new System.Threading.ThreadLocal<_>(fun () -> (new Composition(new Simple9(), new VariableByte()) :> IntegerCODEC))
+    //let private codec = new System.Threading.ThreadLocal<_>(fun () -> (new Composition(new FastPFOR(), new VariableByte()) :> IntegerCODEC))
+    let private codec = new System.Threading.ThreadLocal<_>(fun () -> (new Composition(new Simple9(), new VariableByte()) :> IntegerCODEC))
     
     let compressFastPFOR (deltaRow:DeltaRow) = 
         if deltaRow.Delta.Length > 0 then

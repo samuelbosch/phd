@@ -55,8 +55,8 @@ module Program =
         //printfn "%d pixels" occurrencePixels.LongLength
 
         RasterCompressed.test()
-        //RasterCompressed.benchmark()
-        RasterCompressed.benchmarkBigFile()
+        RasterCompressed.benchmark()
+        //RasterCompressed.benchmarkBigFile()
         //RasterCompressed.benchmark_marspec_10m()
 
         // main entry point return
