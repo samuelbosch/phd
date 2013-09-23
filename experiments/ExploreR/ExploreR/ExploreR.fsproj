@@ -64,6 +64,7 @@
     <Compile Include="Sdm.fs" />
     <None Include="Script.fsx" />
     <None Include="packages.config" />
+    <Compile Include="Outlier.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

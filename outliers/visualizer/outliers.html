@@ -1,0 +1,272 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Outliers</title>
+  <script type="text/javascript" src="jquery-1.8.2.min.js"></script>
+  <script type="text/javascript" src="highcharts.js"></script>
+  <script type="text/javascript" src="highcharts-more.js"></script>
+
+  <script type="text/javascript" src="OpenLayers.js"></script>  
+
+  <script type="text/javascript" src="outliers.visualisation.js"></script>
+  <script type="text/javascript" src="data/395409.data.js"></script>
+</head>
+<body>
+  <div style="vertical-align:middle;margin:10px">
+    <select id="specieslist" style="float:left;margin-right:10px"></select>
+    <h3 id="tname"></h3>
+  </div>
+  <table>
+    <tr>
+      <td>
+        <div id="highcharts" style="width:400px; height:400px;"></div>        
+      </td>
+      <td>
+        <div id="map" style="width:800px;height:400px;border-style:solid;border-color:lightgrey"></div>
+      </td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td>
+        <p>Normal</p>
+        <select id="normallist" class="multiselect" size="20" style="width:150px" multiple="multiple">
+        </select>
+      </td>
+      <td>
+        <input type="submit" value=">" id="normalToMaybe">
+        <br/>
+        <input type="submit" value="<" id="maybeToNormal">
+      </td>
+      <td>
+        <p>Maybe</p>
+        <select id="maybelist" class="multiselect" size="20" style="width:150px" multiple="multiple">
+        </select>
+      </td>
+      <td>
+        <input type="submit" value=">" id="maybeToOutlier">
+        <br/>
+        <input type="submit" value="<" id="outlierToMaybe">
+      </td>
+      <td>
+        <p>Outlier</p>
+        <select id="outlierslist" class="multiselect" size="20" style="width:150px" multiple="multiple">
+        </select>
+      </td>
+    </tr>
+  </table>
+  
+  
+  <script>
+
+  function initspecies() {
+    $.each([395409,395439,395927,395460,395465,395450,395457,395413], // tname_id's
+      function (i,x) {
+        $("#specieslist").append($("<option>", {value: "data/" + x + ".data.js", text: x}));
+      });
+    $("#specieslist").change(function () { 
+      var v = $(this).val();
+      //$.getScript(v, function() { initialize() });
+      var s = document.createElement("script");
+      s.type = "text/javascript";
+      s.src = v;
+      s.onreadystatechange = function () { if (this.readyState == 'complete') initialize(); };
+      s.onload = initialize;
+      // Use any selector
+      var head= document.getElementsByTagName('head')[0];
+      head.appendChild(s);
+      //$("head").append(s);
+    });
+  }
+
+  function removeOption(list, value) {
+    return !$('#'+list+" option[value='"+value+"']").remove()
+  }
+
+  function moveSelectedOptions(from, to){
+    return !$('#'+from+' option:selected').remove().appendTo('#' + to);  
+  }
+  function getBoxChart() {
+    return Highcharts.charts[Highcharts.charts.length-1];
+  }
+  function movePointToEnd() {
+    var s = getBoxChart().series[1];
+    var p = s.points[0];
+    var newP= {x:p.x, y:p.y, id:p.id};
+    p.remove(false);
+    s.addPoint(newP);
+  }
+
+  function selectPointInChart(chart, id){
+    var points = chart.series[1].points;
+    for (var i = 0; i < points.length; i++) {
+      if (points[i].id === id) {
+        // make sure selected point is visible by putting it on top
+        var p = points[i];
+        var newP= {x:p.x, y:p.y, id:p.id};
+        p.remove(false);
+        var series = chart.series[1];
+        series.addPoint(newP);
+        p = series.points[series.points.length-1];
+        p.select(/*select*/true, /*accumulate*/true);
+      }
+    }
+  }
+
+  function selectPoints(thisOption, optionListId1, optionListId2) {
+    var options = $(thisOption).val();
+    var values = $.map(options, parseFloat);
+    outliers.clearSelection();
+    var chart = getBoxChart();
+    $.each(chart.getSelectedPoints(), function(index, p){ p.select(false); }); // unselect all
+    // clear selection in other option boxes
+    $("#" + optionListId1).val([]);
+    $("#" + optionListId2).val([]);
+
+    for (var i = values.length - 1; i >= 0; i--) {
+      outliers.selectPoint(values[i], false);
+      selectPointInChart(chart, values[i]);
+    };
+  }
+  
+  function initialize() {
+    // clear outliers selects
+    $("select.multiselect").find('option').remove();
+
+    $("#tname").text(tname);
+
+    var boxoutliers = [];
+    for (var i = 0; i < bathy_out.length; i++) {
+      boxoutliers.push({x: 0, y:bathy_out[i], id:bathy_which[i]});
+    }
+    for (var i = 0; i < sss_out.length; i++) {
+      boxoutliers.push({x: 1, y:sss_out[i], id:sss_which[i]});
+    }
+    for (var i = 0; i < sst_out.length; i++) {
+      boxoutliers.push({x: 2, y:sst_out[i], id:sst_which[i]});
+    }
+
+    $('#highcharts').highcharts({
+      credits: { enabled: false },
+      chart: { type: 'boxplot' },
+      title: { text: "" },
+      legend: { enabled: false },
+      xAxis: {
+        categories: ['Bathymetry', 'Salinity', 'Surface t°']
+      },
+      yAxis: { title: { text: "" } },
+      plotOptions: {
+        column: { allowPointSelect: true },
+        series: { 
+          point: { 
+            events: { 
+              click: function(event) { 
+                var which = this.options.id;
+                outliers.selectPoint(which); 
+                if (event.shiftKey || event.ctrlKey || event.altKey){
+                  // if not added before
+                  var options = $("#outlierslist option[value='"+which+"']");
+                  if(options.length == 0){ // not appended yet
+                    $("#outlierslist").append($("<option>", 
+                      {value: which, text: which}));
+                    removeOption("normallist", which);
+                    removeOption("maybelist", which);
+                  } 
+                  else {
+                    options.prop('selected', true);
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      series: [{
+        name: 'Observations',
+        data: [bathy_stats, sss_stats, sst_stats]
+      }, { 
+        name: 'Outliers',
+        type: 'scatter',
+        data: boxoutliers,
+        color: Highcharts.getOptions().colors[0],
+        marker: {
+          fillColor: 'white',
+          lineWidth: 1,
+          lineColor: Highcharts.getOptions().colors[0]
+      }}],
+      allowPointSelect: true,
+      tooltip: {
+        formatter: function() {
+          return "Value: " + this.point.y;
+        }
+      }
+    });
+
+    // populate normallist and maybelist
+    barr = [];
+    for (var i = boxoutliers.length - 1; i >= 0; i--) {
+      barr[boxoutliers[i].id] = true;
+    };
+    for (var which = (coord.length/2); which > 0; which--) {
+      var lon = parseInt(coord[(which-1)]                     *1000,10)/1000
+      var lat = parseInt(coord[((which-1) + (coord.length/2))] *1000,10)/1000
+      var c = " (" + lon + " ; " + lat + ")";
+      if(barr[which]){
+        $("#maybelist").append($("<option>", {value: which, text: which + c}));
+      } else {
+        $("#normallist").append($("<option>", {value: which, text: which + c}));
+      }
+    };
+
+    // selection change event
+    $("#outlierslist")
+    .change(function() { 
+      var self = this;
+      selectPoints(self, "normallist", "maybelist");
+    })
+    .keyup(function(event){
+      if (event.which === 37/*left*/) { 
+        return moveSelectedOptions("outlierslist", "maybelist");
+      }
+    });
+
+    $("#maybelist").change(function() { selectPoints(this, "normallist", "outlierslist");  })
+    .keyup(function(event){ 
+      if (event.which === 39/*right*/) { 
+        return moveSelectedOptions("maybelist", "outlierslist");
+      } 
+      else if (event.which === 37/*left*/) { 
+        return moveSelectedOptions("maybelist", "normallist");
+      }
+    });
+    
+    $("#normallist").change(function() { selectPoints(this, "maybelist", "outlierslist");  })
+    .keyup(function(event) { 
+      if(event.which === 39/*right*/) { 
+        return moveSelectedOptions("normallist", "maybelist");
+      }
+    });
+
+    $('#normalToMaybe').click(function() {  
+      return moveSelectedOptions("normallist", "maybelist");
+    });  
+    $('#maybeToNormal').click(function() {  
+      return moveSelectedOptions("maybelist", "normallist");
+    });
+    $('#maybeToOutlier').click(function() {  
+      return moveSelectedOptions("maybelist", "outlierslist");
+    });  
+    $('#outlierToMaybe').click(function() {  
+      return moveSelectedOptions("outlierslist", "maybelist");
+    }); 
+
+    //initialize map => initialize after the chart otherwise strange things happen
+    outliers.init();
+
+    initspecies();
+  }
+
+$(function() { initialize(); });
+</script>
+</body>
+</html>
