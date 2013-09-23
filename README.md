@@ -2,9 +2,10 @@
 
 Collection of scripts created for my phd, more will be added while my phd progresses.
 
-* obis: script(s) related to data downloaded from [iobis.org](http://iobis.org)
-* raster: script(s) related to the processing of raster files
-* sdm: script(s) related to species distribution modeling
+* obis: code related to data downloaded from [iobis.org](http://iobis.org)
+* raster: code related to the processing of raster files
+* sdm: code related to species distribution modeling
+* outliers: code related to detection of outliers
 
 ## License
 
