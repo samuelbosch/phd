@@ -1,26 +1,35 @@
 var paperLink;
-
-
+var paperName;
 // send request to contentscript on a tab
 
-function sendRequestToContent(request){
-	chrome.tabs.sendRequest(tabId, request, function (response){});
+function sendRequestToContent(tabId, request){
+	chrome.tabs.sendRequest(tabId, request, function (response){
+    // do something with response
+  });
 }
 
-
-
 // Called when the url of a tab changes.
-function tabsUpdated(tabId, changeInfo, tab) {
+function tabUpdated(tabId, changeInfo, tab) {
   // if wiley article
   if (tab.url.indexOf('//onlinelibrary.wiley.com/doi/') > -1) {
-    // ... show the page action.
-    chrome.pageAction.show(tabId);
-
-    // todo add an extra link to the page for direct download !
-    paperLink = "http://www.google.com/"
+    // parse the url
+    var r = new RegExp(".*?/doi/10[.][0-9]{4,}(?:[.][0-9]+)*/(.*?)/");
+    var arr = r.exec(tab.url)
+    paperLink = arr[0] + "pdf"
+    paperName = arr[1];
+    
+    // wiley shows pdf in iframe so we need to get the url for it
+    $.get(paperLink, function( data ) {
+      var url = data.match(/<iframe.*?src="(.*?)"/)[1];
+      paperLink = url;
+      // ... show the page action.  
+      chrome.pageAction.show(tabId);
+    });
   }
   else {
-  	paperLink = null;
+    paperLink = null;
+    paperName = null;
+    chrome.pageAction.hide(tabId);
   }
 
   // PLOS
@@ -51,7 +60,7 @@ function tabsUpdated(tabId, changeInfo, tab) {
 // listeners
 
 // Listen tab updates
-chrome.tabs.onUpdated.addListener(tabsUpdated);
+chrome.tabs.onUpdated.addListener(tabUpdated);
 
 // Listen for the content script to send a message to the background page.
-chrome.extension.onRequest.addListener(onRequest);
+//chrome.extension.onRequest.addListener(onRequest);

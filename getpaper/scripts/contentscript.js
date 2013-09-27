@@ -1,11 +1,11 @@
 
 // request from background page
 if (window == top) {
-  chrome.extension.onRequest.addListener(function(req, sender, sendResponse) {
+  chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 
   	// if requested to add buttons => then do it, main logic stays in background.js
-
-    sendResponse({});
+  	
+    
   });
 }
 

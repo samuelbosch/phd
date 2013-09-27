@@ -3,8 +3,8 @@
 
   "name": "Get paper",
   "version": "1.0",
-  "description": "One click download of research papers pdf's to a specified directory.",
-  "background": {"scripts": ["scripts/background.js"]},
+  "description": "One click download of the pdf version of research papers to a specified directory.",
+  "background": {"scripts": ["scripts/jquery-2.0.2.min.js", "scripts/background.js"]},
 
   "permissions": [
   "tabs", "downloads", "*://*/*"
