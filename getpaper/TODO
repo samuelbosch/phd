@@ -1,3 +1,5 @@
+- prevent ad hoc dissapearing of tab info and the page action
+- override the content:disposition set by PLOS to be able to override the name ([see here for help](http://stackoverflow.com/questions/14286215/supress-the-save-as-dialog-in-chrome))
 - create windows utility to copy downloaded files from the Downloads directory to the papers directory and rename the files from .paper to .pdf
 - add logic for other journal websites
 - try detect if a user has access to a paper and redirect to e.g. Google Scholar if not
