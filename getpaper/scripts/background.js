@@ -1,4 +1,10 @@
-
+// TEST URLS
+/*
+chrome://extensions/ => reload extension
+http://onlinelibrary.wiley.com/doi/10.1111/j.0906-7590.2008.5203.x/abstract
+http://www.plosbiology.org/article/info%3Adoi%2F10.1371%2Fjournal.pbio.1001662;jsessionid=E6549AA0F55CA68AD9BBC6E9E33F5290
+http://www.plosone.org/article/info:doi/10.1371/journal.pone.0073810;jsessionid=3B91B94815A356C9473DCE5D48A71CD4
+*/
 // send request to contentscript on a tab
 
 function sendRequestToContent(tabId, request){
@@ -15,18 +21,10 @@ function getTabInfo(){
 function tabActivated(activeInfo){
   activeTabId = activeInfo.tabId;
 }
+// see here for more info on the parser https://gist.github.com/jlong/2428561
 var parser = document.createElement('a');
-var plosHostR = new RegExp() //= new RegExp("(.*?plos.*?[.org]/article/)(info%3Adoi%2F10[.][0-9]{4,}%2F.*?);")
-var wileyR = new RegExp(".*?/doi/10[.][0-9]{4,}(?:[.][0-9]+)*/(.*?)/");
-// parser.href = "http://example.com:3000/pathname/?search=test#hash";
- 
-// parser.protocol; // => "http:"
-// parser.hostname; // => "example.com"
-// parser.port;     // => "3000"
-// parser.pathname; // => "/pathname/"
-// parser.search;   // => "?search=test"
-// parser.hash;     // => "#hash"
-// parser.host;     // => "example.com:3000"
+var plosHostR = new RegExp("(?:www[.])?plos.*?[.]org", "i"); // match the different plos journals, ignore case
+var wileyR = new RegExp(".*?/doi/10[.][0-9]{4,}(?:[.][0-9]+)*/(.*?)/", "i"); // match wiley style article urls, ignore case
 
 function showPageAction(tabId, link, name){
   tabs[tabId] = { link: link, name:name};
@@ -84,7 +82,6 @@ function tabUpdated(tabId, changeInfo, tab) {
     chrome.pageAction.hide(tabId);
   }
 
-  // PLOS
   // sciencedirect
   // pubmed
   // SFX
