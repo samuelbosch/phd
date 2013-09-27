@@ -1,11 +1,19 @@
-var paperLink;
-var paperName;
+
 // send request to contentscript on a tab
 
 function sendRequestToContent(tabId, request){
 	chrome.tabs.sendRequest(tabId, request, function (response){
     // do something with response
   });
+}
+var tabs = [];
+var activeTabId = -1;
+function getTabInfo(){
+  return tabs[activeTabId];
+}
+// store the currently active tabId
+function tabActivated(activeInfo){
+  activeTabId = activeInfo.tabId;
 }
 
 // Called when the url of a tab changes.
@@ -15,20 +23,25 @@ function tabUpdated(tabId, changeInfo, tab) {
     // parse the url
     var r = new RegExp(".*?/doi/10[.][0-9]{4,}(?:[.][0-9]+)*/(.*?)/");
     var arr = r.exec(tab.url)
-    paperLink = arr[0] + "pdf"
-    paperName = arr[1];
+    var paperLink = arr[0] + "pdf"
+    var paperName = arr[1];
     
     // wiley shows pdf in iframe so we need to get the url for it
     $.get(paperLink, function( data ) {
-      var url = data.match(/<iframe.*?src="(.*?)"/)[1];
-      paperLink = url;
-      // ... show the page action.  
-      chrome.pageAction.show(tabId);
+      var match = data.match(/<iframe.*?src="(.*?)"/);
+      if(match) { // if iframe not found then probably no access => can this be identified earlier ?
+        paperLink = match[1];
+        tabs[tabId] = { link: paperLink, name:paperName};
+        // ... show the page action.  
+        chrome.pageAction.show(tabId);
+      }
+      else {
+        // TODO provide alternative => Google Scholar ?
+      }
     });
   }
   else {
-    paperLink = null;
-    paperName = null;
+    tabs[tabId] = null;
     chrome.pageAction.hide(tabId);
   }
 
@@ -61,6 +74,7 @@ function tabUpdated(tabId, changeInfo, tab) {
 
 // Listen tab updates
 chrome.tabs.onUpdated.addListener(tabUpdated);
+chrome.tabs.onActivated.addListener(tabActivated)
 
 // Listen for the content script to send a message to the background page.
 //chrome.extension.onRequest.addListener(onRequest);

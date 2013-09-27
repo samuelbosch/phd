@@ -1,4 +1,3 @@
-- fix issue with dissappearing links when another tab is opened (fix usage global variables in background.js => store link and name per tab ID)
 - create windows utility to copy downloaded files from the Downloads directory to the papers directory and rename the files from .paper to .pdf
 - add logic for other journal websites
 - try detect if a user has access to a paper and redirect to e.g. Google Scholar if not
