@@ -1,0 +1,16 @@
+* Visualizer for identifying potential outliers in species distributions
+
+If you want to use it with your own data then you'll have to generate a js file similar to the ones in the data directory.
+The variables in the data files are:
+- tname: name of the species
+- coord: coordinates of the species presences
+- bathy_stats: boxplot stats for the bathymetry
+- bathy_out: boxplot outliers for the bathymetry
+- bathy_which: 1 based indexes of the outliers in the coordinates array
+- sss_stats: see bathy_stats
+- sss_out: see bathy_out
+- sss_which: see bathy_which
+- sst_stats: see bathy_stats
+- sst_out: see bathy_out
+- sst_which: see bathy_which
+- pcout: continuous output from pcout 
