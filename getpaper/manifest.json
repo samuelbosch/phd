@@ -7,7 +7,8 @@
   "background": {"scripts": ["scripts/jquery-2.0.2.min.js", "scripts/background.js"]},
 
   "permissions": [
-  "tabs", "downloads", "*://*/*"
+  "tabs", "downloads", "*://*/*", 
+  "webRequest", "webRequestBlocking"
   ],
   "page_action": {
     "default_icon": { "19" : "images/icon19.png","38": "images/icon38.png" },

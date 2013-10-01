@@ -32,7 +32,6 @@ function showPageAction(tabId, link, name){
   chrome.pageAction.show(tabId);
 }
 
-//http://www.plosbiology.org/article/fetchObject.action?uri=info%3Adoi%2F10.1371%2Fjournal.pbio.1001662&representation=PDF
 // Called when the url of a tab changes.
 function tabUpdated(tabId, changeInfo, tab) {
   parser.href = tab.url;
@@ -114,3 +113,23 @@ chrome.tabs.onActivated.addListener(tabActivated)
 
 // Listen for the content script to send a message to the background page.
 //chrome.extension.onRequest.addListener(onRequest);
+
+
+chrome.webRequest.onHeadersReceived.addListener(
+  // PLOS content-disposition fix
+  function (details) {
+    var h = [];
+    var headers = details.responseHeaders;
+    for (var i = 0; i < headers.length; i++) {
+      if(headers[i].name !== "Content-disposition") {
+        h.push(headers[i]);
+      }
+    };
+    headers = h;
+    return {
+        responseHeaders: headers
+    };
+  }, {
+      urls: ["*://*/article*"]
+  }, ["blocking", "responseHeaders"]
+);
