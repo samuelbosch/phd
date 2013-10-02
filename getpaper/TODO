@@ -1,7 +1,5 @@
-- experiment if it can be easily rewritten within F# + FunScript
-- find a way to write unit tests
-- prevent ad hoc dissapearing of tab info and the page action
 - create windows utility to copy downloaded files from the Downloads directory to the papers directory and rename the files from .paper to .pdf
+- prevent ad hoc dissapearing of tab info and the page action
 - add logic for other journal websites
 - try detect if a user has access to a paper and redirect to e.g. Google Scholar if not
 - add inline download buttons in e.g. Google Scholar, Sfx, ...

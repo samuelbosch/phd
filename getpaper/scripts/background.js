@@ -4,27 +4,19 @@ chrome://extensions/ => reload extension
 http://onlinelibrary.wiley.com/doi/10.1111/j.0906-7590.2008.5203.x/abstract
 http://www.plosbiology.org/article/info%3Adoi%2F10.1371%2Fjournal.pbio.1001662;jsessionid=E6549AA0F55CA68AD9BBC6E9E33F5290
 http://www.plosone.org/article/info:doi/10.1371/journal.pone.0073810;jsessionid=3B91B94815A356C9473DCE5D48A71CD4
+http://www.geos.ed.ac.uk/~gisteac/gis_book_abridged/files/ch14.pdf
 */
 // send request to contentscript on a tab
+
+var tabs = [];
+var activeTabId = -1;
+
 
 function sendRequestToContent(tabId, request){
 	chrome.tabs.sendRequest(tabId, request, function (response){
     // do something with response
   });
 }
-var tabs = [];
-var activeTabId = -1;
-function getTabInfo(){
-  return tabs[activeTabId];
-}
-// store the currently active tabId
-function tabActivated(activeInfo){
-  activeTabId = activeInfo.tabId;
-}
-// see here for more info on the parser https://gist.github.com/jlong/2428561
-var parser = document.createElement('a');
-var plosHostR = new RegExp("(?:www[.])?plos.*?[.]org", "i"); // match the different plos journals, ignore case
-var wileyR = new RegExp(".*?/doi/10[.][0-9]{4,}(?:[.][0-9]+)*/(.*?)/", "i"); // match wiley style article urls, ignore case
 
 function showPageAction(tabId, link, name, showView, showDownload){
   tabs[tabId] = { link: link, name:name, showView:showView, showDownload:showDownload};
@@ -32,69 +24,98 @@ function showPageAction(tabId, link, name, showView, showDownload){
   chrome.pageAction.show(tabId);
 }
 
+
+function getTabInfo(){
+  return tabs[activeTabId];
+}
+// store the currently active tabId
+function tabActivated(activeInfo){
+  activeTabId = activeInfo.tabId;
+}
+
 function isPdf(url) {
   // check if ends with .pdf
   var start = url.length -4
-  return start > -1 && 
-    (url.charCodeAt(start) === 46) && /*.*/
-    ((url.charCodeAt(++start) - 80) |  32 === 32) && /*p*/
-    ((url.charCodeAt(++start) - 68) |  32 === 32) && /*d*/
-    ((url.charCodeAt(++start) - 70) |  32 === 32); /*f*/
+  var result = start > -1 && 
+    /* . */ (url.charCodeAt(start) === 46) && 
+    /* p */ (((url.charCodeAt(++start) - 80) |  32) === 32) && 
+    /* d */ (((url.charCodeAt(++start) - 68) |  32) === 32) && 
+    /* f */ (((url.charCodeAt(++start) - 70) |  32) === 32); 
+  return result;
 }
 
-function getPdfName(url) {
+function handlePdf(parser, tabId, url) {
   var start = url.lastIndexOf("/") + 1;
-  return url.substring(start, url.length-4 /*remove .pdf extension*/);  
+  var name = url.substring(start, url.length-4 /*remove .pdf extension*/);
+  showPageAction(tabId, url, name, false, true);  
 }
+
+/* Wiley */
+var wileyR = new RegExp(".*?/doi/10[.][0-9]{4,}(?:[.][0-9]+)*/(.*?)/", "i"); // match wiley style article urls, ignore case
+function isWiley(parser) {
+  return parser.hostname === "onlinelibrary.wiley.com" && parser.pathname.indexOf('/doi/') === 0
+}
+function handleWiley(parser, tabId, url) {
+  // parse the url
+  var arr = wileyR.exec(url);
+  var paperLink = arr[0] + "pdf";
+  var paperName = arr[1];
+  
+  // wiley shows pdf in iframe so we need to get the url for it
+  $.get(paperLink, function( data ) {
+    var match = data.match(/<iframe.*?src="(.*?)"/);
+    if(match) { // if iframe not found then probably no access => can this be identified earlier ?
+      paperLink = match[1];
+      showPageAction(tabId, paperLink, paperName,true,true);
+    }
+    else {
+      // TODO provide alternative => Google Scholar ?
+    }
+  });
+}
+
+/* PLOS */
+var plosHostR = new RegExp("(?:www[.])?plos.*?[.]org", "i"); // match the different plos journals, ignore case
+function isPlos(parser) {
+  return plosHostR.exec(parser.hostname);
+}
+function handlePlos(parser, tabId, url) {
+  var splittedPath = parser.pathname.split("/");
+  var article, articleName;
+  if(splittedPath[1] === "article"){
+    if(splittedPath[2] === "info:doi"){
+      //info:doi/10.1371/journal.pone.0073810;jsessionid=3B91B94815A356C9473DCE5D48A71CD4
+      articleName = splittedPath[4].split(";")[0];
+      article = "info%3Adoi%2F" + splittedPath[3] + "%2F" + articleName;
+    } else if (splittedPath[2].indexOf("info%3Adoi") == 0) {
+      //info%3Adoi%2F10.1371%2Fjournal.pbio.1001662;jsessionid=E6549AA0F55CA68AD9BBC6E9E33F5290
+      article = splittedPath[2].split(";")[0]; // strip session
+      splittedArticle = article.split("%2F");
+      articleName = splittedArticle[splittedArticle.length-1]; // name is last part 
+    }
+  }
+  if(article && articleName) {
+    var link = parser.protocol +"//"+ parser.host + "/article/fetchObject.action?uri=" + article + "&representation=PDF";
+    showPageAction(tabId, link, articleName,true,true);
+  }
+}
+
+var parser = document.createElement('a'); // more info on the parser https://gist.github.com/jlong/2428561
 
 // Called when the url of a tab changes.
 function tabUpdated(tabId, changeInfo, tab) {
   if (isPdf(tab.url)) {
-    showPageAction(tabId, tab.url, getPdfName(tab.url), false, true);
+    handlePdf(parser, tabId, tab.url);
     return;
   }
 
   parser.href = tab.url;
 
-  // if wiley article
-  if (parser.hostname === "onlinelibrary.wiley.com" && parser.pathname.indexOf('/doi/') === 0) {
-    // parse the url
-    
-    var arr = wileyR.exec(tab.url);
-    var paperLink = arr[0] + "pdf";
-    var paperName = arr[1];
-    
-    // wiley shows pdf in iframe so we need to get the url for it
-    $.get(paperLink, function( data ) {
-      var match = data.match(/<iframe.*?src="(.*?)"/);
-      if(match) { // if iframe not found then probably no access => can this be identified earlier ?
-        paperLink = match[1];
-        showPageAction(tabId, paperLink, paperName);
-      }
-      else {
-        // TODO provide alternative => Google Scholar ?
-      }
-    });
+  if (isWiley(parser)) {
+    handleWiley(parser, tabId, tab.url);
   }
-  else if (plosHostR.exec(parser.hostname)) {
-    var splittedPath = parser.pathname.split("/");
-    var article, articleName;
-    if(splittedPath[1] === "article"){
-      if(splittedPath[2] === "info:doi"){
-        //info:doi/10.1371/journal.pone.0073810;jsessionid=3B91B94815A356C9473DCE5D48A71CD4
-        articleName = splittedPath[4].split(";")[0];
-        article = "info%3Adoi%2F" + splittedPath[3] + "%2F" + articleName;
-      } else if (splittedPath[2].indexOf("info%3Adoi") == 0) {
-        //info%3Adoi%2F10.1371%2Fjournal.pbio.1001662;jsessionid=E6549AA0F55CA68AD9BBC6E9E33F5290
-        article = splittedPath[2].split(";")[0]; // strip session
-        splittedArticle = article.split("%2F");
-        articleName = splittedArticle[splittedArticle.length-1]; // name is last part 
-      }
-    }
-    if(article && articleName) {
-      var link = parser.protocol +"//"+ parser.host + "/article/fetchObject.action?uri=" + article + "&representation=PDF";
-      showPageAction(tabId, link, articleName);
-    }
+  else if (isPLos(parser)) {
+    handlePlos(parser, tabId, tab.url)
   }
   else {
     tabs[tabId] = null;
