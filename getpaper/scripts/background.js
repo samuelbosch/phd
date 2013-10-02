@@ -26,14 +26,34 @@ var parser = document.createElement('a');
 var plosHostR = new RegExp("(?:www[.])?plos.*?[.]org", "i"); // match the different plos journals, ignore case
 var wileyR = new RegExp(".*?/doi/10[.][0-9]{4,}(?:[.][0-9]+)*/(.*?)/", "i"); // match wiley style article urls, ignore case
 
-function showPageAction(tabId, link, name){
-  tabs[tabId] = { link: link, name:name};
+function showPageAction(tabId, link, name, showView, showDownload){
+  tabs[tabId] = { link: link, name:name, showView:showView, showDownload:showDownload};
   // ... show the page action.  
   chrome.pageAction.show(tabId);
 }
 
+function isPdf(url) {
+  // check if ends with .pdf
+  var start = url.length -4
+  return start > -1 && 
+    (url.charCodeAt(start) === 46) && /*.*/
+    ((url.charCodeAt(++start) - 80) |  32 === 32) && /*p*/
+    ((url.charCodeAt(++start) - 68) |  32 === 32) && /*d*/
+    ((url.charCodeAt(++start) - 70) |  32 === 32); /*f*/
+}
+
+function getPdfName(url) {
+  var start = url.lastIndexOf("/") + 1;
+  return url.substring(start, url.length-4 /*remove .pdf extension*/);  
+}
+
 // Called when the url of a tab changes.
 function tabUpdated(tabId, changeInfo, tab) {
+  if (isPdf(tab.url)) {
+    showPageAction(tabId, tab.url, getPdfName(tab.url), false, true);
+    return;
+  }
+
   parser.href = tab.url;
 
   // if wiley article
@@ -118,18 +138,22 @@ chrome.tabs.onActivated.addListener(tabActivated)
 chrome.webRequest.onHeadersReceived.addListener(
   // PLOS content-disposition fix
   function (details) {
-    var h = [];
-    var headers = details.responseHeaders;
-    for (var i = 0; i < headers.length; i++) {
-      if(headers[i].name !== "Content-disposition") {
-        h.push(headers[i]);
-      }
-    };
-    headers = h;
-    return {
-        responseHeaders: headers
-    };
+    if(details.url.indexOf("&representation=PDF") > 0) {
+      var headers = details.responseHeaders;
+      for (var i = 0; i < headers.length; i++) {
+        if(headers[i].name.toUpperCase() === "Content-disposition".toUpperCase()) {
+          headers.splice(i, 1);
+        }
+      };
+      return {
+          responseHeaders: headers
+      };
+    }
   }, {
       urls: ["*://*/article*"]
   }, ["blocking", "responseHeaders"]
 );
+
+
+//Content-Type: application/octet-stream
+//Content-Disposition: attachment; filename= "lecture07.pdf"
