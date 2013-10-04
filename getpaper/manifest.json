@@ -4,7 +4,7 @@
   "name": "Get paper",
   "version": "1.0",
   "description": "One click download of the pdf version of research papers to a specified directory.",
-  "background": {"scripts": ["scripts/jquery-2.0.2.min.js", "scripts/background.js"]},
+  "background": {"scripts": ["scripts/jquery-2.0.2.min.js", "scripts/background.js", "scripts/handlers.js"]},
 
   "permissions": [
   "tabs", "downloads", "*://*/*", 

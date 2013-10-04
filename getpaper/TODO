@@ -1,3 +1,4 @@
+- refactor handlers / update background.js / update BackgroundSpec
 - create windows utility to copy downloaded files from the Downloads directory to the papers directory and rename the files from .paper to .pdf
 - prevent ad hoc dissapearing of tab info and the page action
 - add logic for other journal websites
