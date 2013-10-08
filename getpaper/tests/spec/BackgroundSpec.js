@@ -4,12 +4,12 @@ describe("Background", function() {
   
   describe("pdf", function() {
     it("should be able to recognize a pdf link", function() {
-      var url= "http://www.geos.ed.ac.uk/~gisteac/gis_book_abridged/files/ch14.pdf";
-      expect(isPdf(url)).toBeTruthy();
+      parser.href= "http://www.geos.ed.ac.uk/~gisteac/gis_book_abridged/files/ch14.pdf";
+      expect(handlers[0].match(parser)).toBeTruthy();
     });
     it("should not falsly recognize non pdf links", function() {
-      var url = "https://login.ugent.be/login?service=https%3A%2F%2Fwebmail.ugent.be%2Fhorde%2FloginForm.php";
-      expect(isPdf(url)).toBeFalsy();
+      parser.href = "https://login.ugent.be/login?service=https%3A%2F%2Fwebmail.ugent.be%2Fhorde%2FloginForm.php";
+      expect(handlers[0].match(url)).toBeFalsy();
     });
     it("handle pdf should call showPageAction", function() {
       spyOn(window, 'showPageAction');

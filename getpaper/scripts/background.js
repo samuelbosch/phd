@@ -104,24 +104,19 @@ var parser = document.createElement('a'); // more info on the parser https://gis
 
 // Called when the url of a tab changes.
 function tabUpdated(tabId, changeInfo, tab) {
-  if (isPdf(tab.url)) {
-    handlePdf(parser, tabId, tab.url);
-    return;
-  }
-
   parser.href = tab.url;
+  for (var i = 0; i < handlers.length; i++) {
+    var handler = handlers[i];
+    if(handler.match(parser)) {
+      handler.handle(parser,tabId)
+      return;
+    }
+  };
 
-  if (isWiley(parser)) {
-    handleWiley(parser, tabId, tab.url);
-  }
-  else if (isPLos(parser)) {
-    handlePlos(parser, tabId, tab.url)
-  }
-  else {
-    tabs[tabId] = null;
-    chrome.pageAction.hide(tabId);
-  }
-
+  tabs[tabId] = null;
+  chrome.pageAction.hide(tabId);
+  
+  // add to handlers:
   // sciencedirect
   // pubmed
   // SFX
