@@ -1,8 +1,8 @@
 var handlers = [{ /* pdf */
-  this.type: "pdf",
-  this.match : function (parser) {
+  type: "pdf",
+  match: function (parser) {
     // check if ends with .pdf
-	var url = parser.href;
+	  var url = parser.href;
     var start = url.length -4
     var result = start > -1 && 
     /* . */ (url.charCodeAt(start) === 46) && 
@@ -11,19 +11,19 @@ var handlers = [{ /* pdf */
     /* f */ (((url.charCodeAt(++start) - 70) |  32) === 32); 
     return result;
   },
-  this.handle: function(parser, tabId) {
-	var url = parser.href;
+  handle: function(parser, tabId) {
+	  var url = parser.href;
     var start = url.lastIndexOf("/") + 1;
     var name = url.substring(start, url.length-4 /*remove .pdf extension*/);
     showPageAction(tabId, url, name, false, true);  
   }
 }, {
-  this.type: "Wiley",
-  this._reg = new RegExp(".*?/doi/10[.][0-9]{4,}(?:[.][0-9]+)*/(.*?)/", "i"), // match wiley style article urls, ignore case
-  this.match : function (parser) {
+  type: "Wiley",
+  _reg: new RegExp(".*?/doi/10[.][0-9]{4,}(?:[.][0-9]+)*/(.*?)/", "i"), // match wiley style article urls, ignore case
+  match: function (parser) {
     return parser.hostname === "onlinelibrary.wiley.com" && parser.pathname.indexOf('/doi/') === 0
   },
-  this.handle: function(parser, tabId) {
+  handle: function(parser, tabId) {
     // parse the url
     var arr = this._reg.exec(parser.href);
     var paperLink = arr[0] + "pdf";
@@ -42,12 +42,12 @@ var handlers = [{ /* pdf */
     });  
   }
 }, {
-  this.type: "PLOS",
-  this._reg = new RegExp("(?:www[.])?plos.*?[.]org", "i"), // match the different plos journals, ignore case
-  this.match: function (parser) {
+  type: "PLOS",
+  _reg: new RegExp("(?:www[.])?plos.*?[.]org", "i"), // match the different plos journals, ignore case
+  match: function (parser) {
     return this._reg.exec(parser.hostname);
   },
-  this.handle: function(parser, tabId) {
+  handle: function(parser, tabId) {
     var splittedPath = parser.pathname.split("/");
     var article, articleName;
     if(splittedPath[1] === "article"){

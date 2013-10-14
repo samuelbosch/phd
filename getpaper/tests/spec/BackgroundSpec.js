@@ -9,7 +9,7 @@ describe("Background", function() {
     });
     it("should not falsly recognize non pdf links", function() {
       parser.href = "https://login.ugent.be/login?service=https%3A%2F%2Fwebmail.ugent.be%2Fhorde%2FloginForm.php";
-      expect(handlers[0].match(url)).toBeFalsy();
+      expect(handlers[0].match(parser)).toBeFalsy();
     });
     it("handle pdf should call showPageAction", function() {
       spyOn(window, 'showPageAction');
