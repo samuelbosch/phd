@@ -5,3 +5,4 @@
 - add logic for other journal websites
 - try detect if a user has access to a paper and redirect to e.g. Google Scholar if not
 - add inline download buttons in e.g. Google Scholar, Sfx, ...
+- indicate if you already have the pdf in your (Mendeley) library and provide an open button/link
