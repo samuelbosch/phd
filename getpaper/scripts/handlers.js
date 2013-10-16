@@ -2,7 +2,7 @@ var handlers = [{ /* pdf */
   type: "pdf",
   match: function (parser) {
     // check if ends with .pdf
-	  var url = parser.href;
+    var url = parser.href;
     var start = url.length -4
     var result = start > -1 && 
     /* . */ (url.charCodeAt(start) === 46) && 
@@ -12,22 +12,25 @@ var handlers = [{ /* pdf */
     return result;
   },
   handle: function(parser, tabId) {
-	  var url = parser.href;
+    var url = parser.href;
     var start = url.lastIndexOf("/") + 1;
     var name = url.substring(start, url.length-4 /*remove .pdf extension*/);
     showPageAction(tabId, url, name, false, true);  
   }
 }, {
   type: "Wiley",
-  _reg: new RegExp(".*?/doi/10[.][0-9]{4,}(?:[.][0-9]+)*/(.*?)/", "i"), // match wiley style article urls, ignore case
+  //_reg: new RegExp(".*?/10[.][0-9]{4,}(?:[.][0-9]+)*/(.*?)/", "i"), // match wiley style article urls, ignore case
+  _reg: new RegExp(".*?/(10[.][0-9]{4,}(?:[.][0-9]+)*)/(.*?)/", "i"), // match wiley style article urls, ignore case
   match: function (parser) {
-    return parser.hostname === "onlinelibrary.wiley.com" && parser.pathname.indexOf('/doi/') === 0
+    return (parser.hostname === "onlinelibrary.wiley.com" && parser.pathname.indexOf('/doi/') === 0) || (parser.hostname === "doi.wiley.com" && parser.pathname.indexOf('/10.') === 0);
   },
   handle: function(parser, tabId) {
     // parse the url
-    var arr = this._reg.exec(parser.href);
-    var paperLink = arr[0] + "pdf";
-    var paperName = arr[1];
+    var arr = this._reg.exec(parser.href + '/'); // make sure it ends with /
+    //var paperLink = arr[0] + "pdf";
+    //var paperName = arr[1];
+    var paperLink = "http://onlinelibrary.wiley.com/doi/" + arr[1] + "/" + arr[2] + "/pdf";
+    var paperName = arr[2];
     
     // wiley shows pdf in iframe so we need to get the url for it
     $.get(paperLink, function( data ) {

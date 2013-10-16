@@ -15,21 +15,35 @@ describe("Background", function() {
       spyOn(window, 'showPageAction');
       var url = "http://www.geos.ed.ac.uk/~gisteac/gis_book_abridged/files/ch14.pdf";
       parser.href = url;
-      handlePdf(parser, 1, url);
+      handlers[0].handle(parser, 1);
       expect(window.showPageAction).toHaveBeenCalledWith(1, url, "ch14", false, true);
     });
   });
 
   describe("Wiley", function() {
+    var handler = handlers[1];
+
     it("should be able to recognize a wiley url", function() {
       parser.href = "http://onlinelibrary.wiley.com/doi/10.1111/j.0906-7590.2008.5203.x/abstract";
-      expect(isWiley(parser)).toBeTruthy();
+      expect(handler.match(parser)).toBeTruthy();
+    });
+
+    it("should be able to recognize a doi wiley url", function() {
+      parser.href = "http://doi.wiley.com/10.1111/j.0906-7590.2008.5203.x";
+      expect(handler.match(parser)).toBeTruthy();
     });
 
     it("should do an ajax call to the pdf url", function() {
       spyOn($, 'get');
       parser.href = "http://onlinelibrary.wiley.com/doi/10.1111/j.0906-7590.2008.5203.x/abstract";
-      handleWiley(parser, 1, parser.href);
+      handler.handle(parser, 1);
+      expect($.get).toHaveBeenCalledWith("http://onlinelibrary.wiley.com/doi/10.1111/j.0906-7590.2008.5203.x/pdf", jasmine.any(Function))
+    });
+
+    it("from doi url should do an ajax call to the pdf url", function() {
+      spyOn($, 'get');
+      parser.href = "http://doi.wiley.com/10.1111/j.0906-7590.2008.5203.x";
+      handler.handle(parser, 1);
       expect($.get).toHaveBeenCalledWith("http://onlinelibrary.wiley.com/doi/10.1111/j.0906-7590.2008.5203.x/pdf", jasmine.any(Function))
     });
 
@@ -40,18 +54,20 @@ describe("Background", function() {
     xit("handle accessible papers", function() {
       spyOn(window, 'showPageAction');
       parser.href = "http://onlinelibrary.wiley.com/doi/10.1111/j.0906-7590.2008.5203.x/abstract";
-      handleWiley(parser, 1, parser.href);
+      handler.handle(parser, 1);
       expect(window.showPageAction).toHaveBeenCalledWith(1, jasmine.any(String), "j.0906-7590.2008.5203.x", true, true);
     });
 
     xit("handle non accessible papers", function(){
       var url = "http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12071/abstract";
       parser.href = url;
-      expect(handleWiley(parser, 1, url)).toEqual("WAITING FOR IMPLEMENTATION");
+      expect(handler.handle(parser, 1)).toEqual("WAITING FOR IMPLEMENTATION");
     });
   });
 
   describe("PLOS", function() {
+    var handler = handlers[2];
+
     it("should be able to recognize different PLOS urls", function() {
       var urls = [
         "http://www.plosbiology.org/article/info%3Adoi%2F10.1371%2Fjournal.pbio.1001662;jsessionid=E6549AA0F55CA68AD9BBC6E9E33F5290",
@@ -64,21 +80,21 @@ describe("Background", function() {
       ];
       for (var i = 0; i < urls.length; i++) {
         parser.href = urls[i]
-        expect(isPlos(parser)).toBeTruthy();
+        expect(handler.match(parser)).toBeTruthy();
       };
     });
     
     it("handle paper links with normal doi", function() {
       spyOn(window, 'showPageAction');
       parser.href = "http://www.plosbiology.org/article/info%3Adoi%2F10.1371%2Fjournal.pbio.1001662;jsessionid=E6549AA0F55CA68AD9BBC6E9E33F5290";
-      handlePlos(parser, 1, parser.href);
+      handler.handle(parser, 1);
       expect(window.showPageAction).toHaveBeenCalledWith(1, "http://www.plosbiology.org/article/fetchObject.action?uri=info%3Adoi%2F10.1371%2Fjournal.pbio.1001662&representation=PDF", "journal.pbio.1001662", true, true);
     });
 
     it("handle paper links with escaped doi", function() {
       spyOn(window, 'showPageAction');
       parser.href = "http://www.plosone.org/article/info:doi/10.1371/journal.pone.0073810";
-      handlePlos(parser, 1, parser.href);
+      handler.handle(parser, 1);
       expect(window.showPageAction).toHaveBeenCalledWith(1, "http://www.plosone.org/article/fetchObject.action?uri=info%3Adoi%2F10.1371%2Fjournal.pone.0073810&representation=PDF", "journal.pone.0073810", true, true);
     });
   });
