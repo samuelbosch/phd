@@ -1,11 +1,15 @@
 // for more info on Jasmine see: http://pivotal.github.io/jasmine/
 
 describe("Background", function() {
+
+  function expectMatch(handler, url) {
+    parser.href = url;
+    expect(handler.match(parser)).toBeTruthy();
+  }
   
   describe("pdf", function() {
     it("should be able to recognize a pdf link", function() {
-      parser.href= "http://www.geos.ed.ac.uk/~gisteac/gis_book_abridged/files/ch14.pdf";
-      expect(handlers[0].match(parser)).toBeTruthy();
+      expectMatch(handlers[0], "http://www.geos.ed.ac.uk/~gisteac/gis_book_abridged/files/ch14.pdf");
     });
     it("should not falsly recognize non pdf links", function() {
       parser.href = "https://login.ugent.be/login?service=https%3A%2F%2Fwebmail.ugent.be%2Fhorde%2FloginForm.php";
@@ -24,13 +28,11 @@ describe("Background", function() {
     var handler = handlers[1];
 
     it("should be able to recognize a wiley url", function() {
-      parser.href = "http://onlinelibrary.wiley.com/doi/10.1111/j.0906-7590.2008.5203.x/abstract";
-      expect(handler.match(parser)).toBeTruthy();
+      expectMatch(handler, "http://onlinelibrary.wiley.com/doi/10.1111/j.0906-7590.2008.5203.x/abstract");
     });
 
     it("should be able to recognize a doi wiley url", function() {
-      parser.href = "http://doi.wiley.com/10.1111/j.0906-7590.2008.5203.x";
-      expect(handler.match(parser)).toBeTruthy();
+      expectMatch(handler, "http://doi.wiley.com/10.1111/j.0906-7590.2008.5203.x");
     });
 
     it("should do an ajax call to the pdf url", function() {
@@ -79,8 +81,7 @@ describe("Background", function() {
         "http://www.plosntds.org/article/info%3Adoi%2F10.1371%2Fjournal.pntd.0002435;jsessionid=729BBE93303B8F4A992D92FEF54CA54E"
       ];
       for (var i = 0; i < urls.length; i++) {
-        parser.href = urls[i]
-        expect(handler.match(parser)).toBeTruthy();
+        expectMatch(handler, urls[i]);
       };
     });
     
@@ -96,6 +97,30 @@ describe("Background", function() {
       parser.href = "http://www.plosone.org/article/info:doi/10.1371/journal.pone.0073810";
       handler.handle(parser, 1);
       expect(window.showPageAction).toHaveBeenCalledWith(1, "http://www.plosone.org/article/fetchObject.action?uri=info%3Adoi%2F10.1371%2Fjournal.pone.0073810&representation=PDF", "journal.pone.0073810", true, true);
+    });
+  });
+  
+
+  describe("ScienceDirect", function() {
+    var handler = handlers[3];
+    
+    it("should be able to recognize a ScienceDirect url", function() {
+      expectMatch(handler, "http://www.sciencedirect.com/science/article/pii/S0143622813002154");
+    });
+
+    it("handle should message the contentscript and handle its result", function () {
+      var expectedUrl = "http://www.sciencedirect.com/science/article/pii/S0143622813002154/pdfft?md5=921be4e2eaa176b73acfed7fa37c3e44&pid=1-s2.0-S0143622813002154-main.pdf";
+      window.chrome = { tabs: { sendMessage : function (tabId, message, callback) {
+        expect(tabId).toEqual(1);
+        expect(message).toEqual("FindScienceDirectPdfLink");
+        callback({url: expectedUrl});
+      }}}
+
+
+      spyOn(window, 'showPageAction');
+      parser.href = "http://www.sciencedirect.com/science/article/pii/S0143622813002154";
+      handler.handle(parser, 1);
+      expect(window.showPageAction).toHaveBeenCalledWith(1, expectedUrl, "1-s2.0-S0143622813002154-main", true, true);
     });
   });
 });

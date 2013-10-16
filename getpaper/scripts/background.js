@@ -5,6 +5,7 @@ http://onlinelibrary.wiley.com/doi/10.1111/j.0906-7590.2008.5203.x/abstract
 http://www.plosbiology.org/article/info%3Adoi%2F10.1371%2Fjournal.pbio.1001662;jsessionid=E6549AA0F55CA68AD9BBC6E9E33F5290
 http://www.plosone.org/article/info:doi/10.1371/journal.pone.0073810;jsessionid=3B91B94815A356C9473DCE5D48A71CD4
 http://www.geos.ed.ac.uk/~gisteac/gis_book_abridged/files/ch14.pdf
+http://www.sciencedirect.com/science/article/pii/S0143622813002154
 */
 // send request to contentscript on a tab
 
@@ -13,7 +14,7 @@ var activeTabId = -1;
 
 
 function sendRequestToContent(tabId, request){
-	chrome.tabs.sendRequest(tabId, request, function (response){
+	chrome.tabs.sendMessage(tabId, request, function (response){
     // do something with response
   });
 }
@@ -87,7 +88,7 @@ chrome.tabs.onActivated.addListener(tabActivated)
 chrome.webRequest.onHeadersReceived.addListener(
   // PLOS content-disposition fix
   function (details) {
-    if(details.url.indexOf("&representation=PDF") > 0) {
+    if(details.url.indexOf("&representation=PDF") > 0) { // when it is a PLOS pdf => remove the Content-disposition
       var headers = details.responseHeaders;
       for (var i = 0; i < headers.length; i++) {
         if(headers[i].name.toUpperCase() === "Content-disposition".toUpperCase()) {

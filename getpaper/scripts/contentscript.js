@@ -1,13 +1,27 @@
+// message from background
+chrome.runtime.onMessage.addListener(
+  function(message, sender, sendResponse) {
+    if (message.action === "FindScienceDirectPdfLink") {
+      var url = null;
+      var e = document.getElementById('pdfLink');
+      
+      if (e) {
+      	url = e.href;
+      }
+      sendResponse({url: url});	
+    }
+  });
+
 
 // request from background page
-if (window == top) {
-  chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+// if (window == top) {
+//   chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 
-  	// if requested to add buttons => then do it, main logic stays in background.js
+//   	// if requested to add buttons => then do it, main logic stays in background.js
   	
     
-  });
-}
+//   });
+// }
 
 // var regex = /sandwich/;
 

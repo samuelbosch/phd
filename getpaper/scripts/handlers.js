@@ -70,4 +70,20 @@ var handlers = [{ /* pdf */
       showPageAction(tabId, link, articleName,true,true);
     }
   }
+}, {
+  type: "ScienceDirect",
+  match: function (parser) {
+    return parser.hostname === "www.sciencedirect.com" && parser.pathname.toLowerCase().indexOf("/science/article/pii/") === 0;
+  },
+  handle: function (parser, tabId) {
+    chrome.tabs.sendMessage(tabId, "FindScienceDirectPdfLink", function (response){
+      if (response && response.url) {
+        var hasAccess = response.url.indexOf("ShoppingCartURL") < 0;
+        if (hasAccess) {
+          var articleName = response.url.substring(response.url.indexOf("&pid=")+5).slice(0,-4);
+          showPageAction(tabId, response.url,articleName, true,true);
+        }
+      }
+    });
+  }
 }];
