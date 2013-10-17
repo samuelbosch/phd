@@ -1,2 +1,7 @@
 * Get Paper
 A Chrome extension to improve the UI experience of downloading the pdf version of research papers.
+
+Functionalities:
+- directly open the pdf of a paper
+- directly download the pdf of a paper (with extension .paper)
+- discuss papers with TogetherJS (<https://togetherjs.com/>)
