@@ -4,21 +4,28 @@ chrome.runtime.onMessage.addListener(
     if (message.action === "FindScienceDirectPdfLink") {
       var url = null;
       var e = document.getElementById('pdfLink');
-      
       if (e) {
-      	url = e.href;
+        url = e.href;
       }
-      sendResponse({url: url});	
+      sendResponse({url: url}); 
     }
-  });
+    else if (message.action === "loadTogetherJS" && document.getElementById('getpaper.togetherjs') === null) {
+      var s = document.createElement('script');
+      s.id = 'getpaper.togetherjs';
+      s.src = 'https://togetherjs.com/togetherjs.js';
+      s.type = 'text/javascript';
+      s.async = false;
+      document.body.appendChild(s);
+    }
+});
 
 
 // request from background page
 // if (window == top) {
 //   chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 
-//   	// if requested to add buttons => then do it, main logic stays in background.js
-  	
+//      // if requested to add buttons => then do it, main logic stays in background.js
+    
     
 //   });
 // }

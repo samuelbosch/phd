@@ -21,7 +21,11 @@ function sendRequestToContent(tabId, request){
 }
 
 function showPageAction(tabId, link, name, showView, showDownload){
-  tabs[tabId] = { link: link, name:name, showView:showView, showDownload:showDownload};
+  tabs[tabId] = { tabId:tabId, link: link, name:name, showView:showView, showDownload:showDownload};
+
+  if (showView || showDownload) {
+    chrome.tabs.sendMessage(tabId, {action: 'loadTogetherJS'}, null);
+  }
   // ... show the page action.  
   chrome.pageAction.show(tabId);
 }

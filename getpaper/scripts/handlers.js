@@ -76,7 +76,7 @@ var handlers = [{ /* pdf */
     return parser.hostname === "www.sciencedirect.com" && parser.pathname.toLowerCase().indexOf("/science/article/pii/") === 0;
   },
   handle: function (parser, tabId) {
-    chrome.tabs.sendMessage(tabId, "FindScienceDirectPdfLink", function (response){
+    chrome.tabs.sendMessage(tabId, {action:"FindScienceDirectPdfLink"}, function (response){
       if (response && response.url) {
         var hasAccess = response.url.indexOf("ShoppingCartURL") < 0;
         if (hasAccess) {

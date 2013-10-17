@@ -1,3 +1,4 @@
+- integrate with TogetherJS to discuss a paper
 - handle case when url contains .pdf but it's not a pdf (e.g. http://www.ugent.be/we/biology/nl/onderwijs/bamaproeven/2013-2014/niet-gekozen-baproef-1213.pdf)
 - create windows utility to copy downloaded files from the Downloads directory to the papers directory and rename the files from .paper to .pdf
 - prevent ad hoc dissapearing of tab info and the page action

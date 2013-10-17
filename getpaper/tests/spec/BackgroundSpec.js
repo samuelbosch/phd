@@ -112,7 +112,7 @@ describe("Background", function() {
       var expectedUrl = "http://www.sciencedirect.com/science/article/pii/S0143622813002154/pdfft?md5=921be4e2eaa176b73acfed7fa37c3e44&pid=1-s2.0-S0143622813002154-main.pdf";
       window.chrome = { tabs: { sendMessage : function (tabId, message, callback) {
         expect(tabId).toEqual(1);
-        expect(message).toEqual("FindScienceDirectPdfLink");
+        expect(message.action).toEqual("FindScienceDirectPdfLink");
         callback({url: expectedUrl});
       }}}
 
