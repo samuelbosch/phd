@@ -9,8 +9,17 @@ chrome.runtime.onMessage.addListener(
       }
       sendResponse({url: url}); 
     }
-    else if (message.action === "loadTogetherJS" && document.getElementById('getpaper.togetherjs') === null) {
+    else if (message.action === "Discuss" && document.getElementById('getpaper.togetherjs') === null) {
+      // first add TogetherJS configuration parameters
       var s = document.createElement('script');
+      s.innerText = "TogetherJSConfig_autoStart = true;"
+       + "TogetherJSConfig_dontShowClicks = true;"
+       + "TogetherJSConfig_findRoom = {prefix: 'getpaper', max: 1000 };"
+       + "TogetherJSConfig_suppressJoinConfirmation = true;"
+       + "TogetherJSConfig_storagePrefix = '"+message.name+"';";
+      // then load the script
+      document.body.appendChild(s);
+      s = document.createElement('script');
       s.id = 'getpaper.togetherjs';
       s.src = 'https://togetherjs.com/togetherjs.js';
       s.type = 'text/javascript';

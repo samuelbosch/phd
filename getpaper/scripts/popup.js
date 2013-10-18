@@ -1,7 +1,8 @@
-function startTogetherJs(tabId) {
-  chrome.tabs.executeScript(tabId, { code: "if(typeof TogetherJS === 'function') { TogetherJS(); } else { setTimeout(function () { TogetherJS(); }, 1500); }" });
+function startTogetherJs(tabId, name) {
+  chrome.tabs.sendMessage(tabId, {action: 'Discuss', name: name}, null);
 }
 function load() {
+  debugger;
   var info = chrome.extension.getBackgroundPage().getTabInfo();
   if(info) {
     if (info.showView) {
@@ -16,7 +17,7 @@ function load() {
     }
     if (info.showView || info.showDownload) {
       $("<br />").appendTo("#download");
-      $("<a/>", { html:"Discuss", href:"#"}).click(function(){ startTogetherJs(info.tabId)}).appendTo("#download");
+      $("<a/>", { html:"Discuss", href:"#"}).click(function(){ startTogetherJs(info.tabId, info.name)}).appendTo("#download");
     }
   }
 }

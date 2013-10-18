@@ -1,22 +1,23 @@
 {
   "manifest_version": 2,
 
-  "name": "Get paper",
+  "name": "Get Paper",
   "version": "1.0",
   "description": "One click download of the pdf version of research papers to a specified directory.",
   "background": {"scripts": ["scripts/jquery-2.0.2.min.js", "scripts/background.js", "scripts/handlers.js"]},
 
   "permissions": [
-  "tabs", "downloads", "*://*/*", 
-  "webRequest", "webRequestBlocking"
+    "tabs", "downloads", "*://*/*", 
+    "webRequest", "webRequestBlocking"
   ],
+  
   "page_action": {
     "default_icon": { "19" : "images/icon19.png","38": "images/icon38.png" },
     "default_title" : "Get Paper",
     "default_popup": "popup.html"
-    },
+  },
 
-    "content_scripts" : [
+  "content_scripts" : [
     {
       "matches" : [
       "http://*/*", 
@@ -26,5 +27,5 @@
       "run_at" : "document_idle",
       "all_frames" : false
     }
-    ]
-  }
+  ]
+}
