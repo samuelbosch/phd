@@ -7,6 +7,7 @@ http://www.plosone.org/article/info:doi/10.1371/journal.pone.0073810;jsessionid=
 http://www.geos.ed.ac.uk/~gisteac/gis_book_abridged/files/ch14.pdf
 http://www.sciencedirect.com/science/article/pii/S0143622813002154 // access
 http://www.sciencedirect.com/science/article/pii/S0143622813002166 // no access
+http://www.ncbi.nlm.nih.gov/pubmed/20136746
 */
 // send request to contentscript on a tab
 

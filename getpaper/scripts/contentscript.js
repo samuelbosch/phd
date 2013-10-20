@@ -9,6 +9,13 @@ chrome.runtime.onMessage.addListener(
       }
       sendResponse({url: url}); 
     }
+    else if (message.action === "FindPubMedArticleLink") {
+      var links = document.getElementsByClassName('icons')[0].children[0].children;
+      sendResponse({url: links[links.length-1]}); // send the last link (PubMed Central Link when there are 2 links)
+    }
+    else if (message.action === "FindPubMedCentralFormatsDiv") {
+      sendResponse({ divhtml: document.getElementsByClassName('format-menu')[0].innerHTML });
+    }
     else if (message.action === "Discuss" && document.getElementById('getpaper.togetherjs') === null) {
       // first add TogetherJS configuration parameters
       var s = document.createElement('script');

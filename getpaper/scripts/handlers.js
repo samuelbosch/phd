@@ -42,7 +42,7 @@ var handlers = [{ /* pdf */
       else {
         // TODO provide alternative => Google Scholar ?
       }
-    });  
+    });
   }
 }, {
   type: "PLOS",
@@ -83,6 +83,60 @@ var handlers = [{ /* pdf */
           var articleName = response.url.substring(response.url.indexOf("&pid=")+5).slice(0,-4);
           showPageAction(tabId, response.url,articleName, true,true);
         }
+      }
+    });
+  }
+}, {
+  type: "PubMed",
+  _reg: new RegExp("^/pubmed/[0-9]*", "i"),
+  match: function (parser) {
+    return parser.hostname === "www.ncbi.nlm.nih.gov" && this._reg.exec(parser.pathname);
+  },
+  handle: function (parser, tabId) {
+    chrome.tabs.sendMessage(tabId, {action:"FindPubMedArticleLink"}, function (response) {
+      if (response && response.url) {
+        
+        // TODO check if url can be handled by one of the other handlers
+        // watch out with sciendedirect url because those should be handled differently
+
+
+        // PubMed is more of a metahandler
+        // => how to keep track of new additions
+        // maybe avoid the content script or provide a path for the case where contentscript is not available
+        // => should a new array with metahandlers be created ? might be useful for sfx and google scholar as well. 
+
+        parser.href = response.url;
+        
+        // for(var i in {3:'ScienceDirect',5:'PubMed Central'}) {
+        //   if (handlers[i].match(parser)) {
+        //     $.get(response.url, function( data ) {
+        //       handlers[i].handletxt(data,tabId);
+        //     });
+        //   }  
+        // }
+        if (handlers[5].match(parser)) { // PubMed Central
+          $.get(response.url, function( data ) {
+            handlers[5].handletxt(data,tabId);
+          });
+        }
+      }
+    });
+  }
+}, {
+  type: "PubMed Central",
+  _reg: new RegExp('^/pmc/articles/PMC[0-9]*/?.*?', 'i'),
+  handletxt: function (text, tabId) {
+    var pdflinkreg= new RegExp('href="(/pmc/articles/PMC[0-9]*/pdf/(.*?).pdf)"', 'i');
+    var arr = this.pdflinkreg.exec(response.divhtml);
+    showPageAction(tabId, arr[1], arr[2],true,true);
+  },
+  match: function (parser) {
+    return parser.hostname === "www.ncbi.nlm.nih.gov" && this._reg.exec(parser.pathname);
+  },
+  handle: function (parser, tabId) {
+    chrome.tabs.sendMessage(tabId, {action: "FindPubMedCentralFormatsDiv"}, function (response) {
+      if (response && response.divhtml) {
+        this.handletxt(response.divhtml, tabId);
       }
     });
   }

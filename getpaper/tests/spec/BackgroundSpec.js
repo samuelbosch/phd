@@ -2,15 +2,20 @@
 
 describe("Background", function() {
 
-  function expectMatch(handler, url) {
-    parser.href = url;
-    expect(handler.match(parser)).toBeTruthy();
+  function itShouldRecognize(msg, handler, urls) {
+    it("should be able to recognize " + msg, function() {
+      for (var i = 0; i < urls.length; i++) {
+        parser.href = urls[i];
+        expect(handler.match(parser)).toBeTruthy();
+      };
+    });
   }
+
+
   
   describe("pdf", function() {
-    it("should be able to recognize a pdf link", function() {
-      expectMatch(handlers[0], "http://www.geos.ed.ac.uk/~gisteac/gis_book_abridged/files/ch14.pdf");
-    });
+    itShouldRecognize("a pdf link", handlers[0], ["http://www.geos.ed.ac.uk/~gisteac/gis_book_abridged/files/ch14.pdf"]);
+    
     it("should not falsly recognize non pdf links", function() {
       parser.href = "https://login.ugent.be/login?service=https%3A%2F%2Fwebmail.ugent.be%2Fhorde%2FloginForm.php";
       expect(handlers[0].match(parser)).toBeFalsy();
@@ -27,13 +32,9 @@ describe("Background", function() {
   describe("Wiley", function() {
     var handler = handlers[1];
 
-    it("should be able to recognize a wiley url", function() {
-      expectMatch(handler, "http://onlinelibrary.wiley.com/doi/10.1111/j.0906-7590.2008.5203.x/abstract");
-    });
+    itShouldRecognize("a wiley url", handler,["http://onlinelibrary.wiley.com/doi/10.1111/j.0906-7590.2008.5203.x/abstract"]);
 
-    it("should be able to recognize a doi wiley url", function() {
-      expectMatch(handler, "http://doi.wiley.com/10.1111/j.0906-7590.2008.5203.x");
-    });
+    itShouldRecognize("a doi wiley url", handler, ["http://doi.wiley.com/10.1111/j.0906-7590.2008.5203.x"]);
 
     it("should do an ajax call to the pdf url", function() {
       spyOn($, 'get');
@@ -70,8 +71,7 @@ describe("Background", function() {
   describe("PLOS", function() {
     var handler = handlers[2];
 
-    it("should be able to recognize different PLOS urls", function() {
-      var urls = [
+    itShouldRecognize("different PLOS urls", handler, [
         "http://www.plosbiology.org/article/info%3Adoi%2F10.1371%2Fjournal.pbio.1001662;jsessionid=E6549AA0F55CA68AD9BBC6E9E33F5290",
         "http://www.plosone.org/article/info:doi/10.1371/journal.pone.0073810;jsessionid=3B91B94815A356C9473DCE5D48A71CD4",
         "http://www.plosmedicine.org/article/info%3Adoi%2F10.1371%2Fjournal.pmed.1001524",
@@ -79,11 +79,7 @@ describe("Background", function() {
         "http://www.plosgenetics.org/article/info%3Adoi%2F10.1371%2Fjournal.pgen.1003792;jsessionid=15EF7A3F094ABB7A2E535178E998099F",
         "http://www.plospathogens.org/article/info%3Adoi%2F10.1371%2Fjournal.ppat.1003655;jsessionid=69461A0DCB11A812822DDA36973B21AF",
         "http://www.plosntds.org/article/info%3Adoi%2F10.1371%2Fjournal.pntd.0002435;jsessionid=729BBE93303B8F4A992D92FEF54CA54E"
-      ];
-      for (var i = 0; i < urls.length; i++) {
-        expectMatch(handler, urls[i]);
-      };
-    });
+      ]);
     
     it("handle paper links with normal doi", function() {
       spyOn(window, 'showPageAction');
@@ -104,9 +100,7 @@ describe("Background", function() {
   describe("ScienceDirect", function() {
     var handler = handlers[3];
     
-    it("should be able to recognize a ScienceDirect url", function() {
-      expectMatch(handler, "http://www.sciencedirect.com/science/article/pii/S0143622813002154");
-    });
+    itShouldRecognize("a ScienceDirect url", handler, ["http://www.sciencedirect.com/science/article/pii/S0143622813002154"]);
 
     it("handle should message the contentscript and handle its result", function () {
       var expectedUrl = "http://www.sciencedirect.com/science/article/pii/S0143622813002154/pdfft?md5=921be4e2eaa176b73acfed7fa37c3e44&pid=1-s2.0-S0143622813002154-main.pdf";
@@ -123,4 +117,21 @@ describe("Background", function() {
       expect(window.showPageAction).toHaveBeenCalledWith(1, expectedUrl, "1-s2.0-S0143622813002154-main", true, true);
     });
   });
+
+  describe("PubMed", function() {
+    var handler = handlers[4];
+    var url = "http://www.ncbi.nlm.nih.gov/pubmed/23940805";
+    
+    itShouldRecognize("a Pubmed url",handler, [url]);
+
+  });
+
+ describe("PubMed Central", function() {
+    var handler = handlers[5];
+    var url = "http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3733920/";
+    
+    itShouldRecognize("a Pubmed Central url",handler, [url]);
+
+  });
+
 });
