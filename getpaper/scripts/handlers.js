@@ -75,6 +75,17 @@ var handlers = [{ /* pdf */
   match: function (parser) {
     return parser.hostname === "www.sciencedirect.com" && parser.pathname.toLowerCase().indexOf("/science/article/pii/") === 0;
   },
+  handletxt: function (text, tabId) {
+    var pdflinkreg = new RegExp('pdfurl="(.*?://www\.sciencedirect\.com/science/article/pii/.*?pid=(.*?)\.pdf)"', 'i');
+    var arr = pdflinkreg.exec(response.divhtml);
+    if (arr) {
+      showPageAction(tabId, arr[1], arr[2], true, true);
+    } else if (text.match("ShoppingCartURL")) {
+      // TODO provide alternative
+    } else {
+      // show warning => nothing found, something went wrong => auto report this url
+    }
+  },
   handle: function (parser, tabId) {
     chrome.tabs.sendMessage(tabId, {action:"FindScienceDirectPdfLink"}, function (response){
       if (response && response.url) {
@@ -82,42 +93,8 @@ var handlers = [{ /* pdf */
         if (hasAccess) {
           var articleName = response.url.substring(response.url.indexOf("&pid=")+5).slice(0,-4);
           showPageAction(tabId, response.url,articleName, true,true);
-        }
-      }
-    });
-  }
-}, {
-  type: "PubMed",
-  _reg: new RegExp("^/pubmed/[0-9]*", "i"),
-  match: function (parser) {
-    return parser.hostname === "www.ncbi.nlm.nih.gov" && this._reg.exec(parser.pathname);
-  },
-  handle: function (parser, tabId) {
-    chrome.tabs.sendMessage(tabId, {action:"FindPubMedArticleLink"}, function (response) {
-      if (response && response.url) {
-        
-        // TODO check if url can be handled by one of the other handlers
-        // watch out with sciendedirect url because those should be handled differently
-
-
-        // PubMed is more of a metahandler
-        // => how to keep track of new additions
-        // maybe avoid the content script or provide a path for the case where contentscript is not available
-        // => should a new array with metahandlers be created ? might be useful for sfx and google scholar as well. 
-
-        parser.href = response.url;
-        
-        // for(var i in {3:'ScienceDirect',5:'PubMed Central'}) {
-        //   if (handlers[i].match(parser)) {
-        //     $.get(response.url, function( data ) {
-        //       handlers[i].handletxt(data,tabId);
-        //     });
-        //   }  
-        // }
-        if (handlers[5].match(parser)) { // PubMed Central
-          $.get(response.url, function( data ) {
-            handlers[5].handletxt(data,tabId);
-          });
+        } else {
+          // TODO provide alternative => Google Scholar ?
         }
       }
     });
@@ -126,8 +103,8 @@ var handlers = [{ /* pdf */
   type: "PubMed Central",
   _reg: new RegExp('^/pmc/articles/PMC[0-9]*/?.*?', 'i'),
   handletxt: function (text, tabId) {
-    var pdflinkreg= new RegExp('href="(/pmc/articles/PMC[0-9]*/pdf/(.*?).pdf)"', 'i');
-    var arr = this.pdflinkreg.exec(response.divhtml);
+    var pdflinkreg = new RegExp('href="(/pmc/articles/PMC[0-9]*/pdf/(.*?).pdf)"', 'i');
+    var arr = pdflinkreg.exec(text);
     showPageAction(tabId, arr[1], arr[2],true,true);
   },
   match: function (parser) {
@@ -137,6 +114,39 @@ var handlers = [{ /* pdf */
     chrome.tabs.sendMessage(tabId, {action: "FindPubMedCentralFormatsDiv"}, function (response) {
       if (response && response.divhtml) {
         this.handletxt(response.divhtml, tabId);
+      }
+    });
+  }
+}];
+
+function handleMeta(parser, tabId) {
+  for (var i = 0; i < handlers.length; i++) {
+    var h = handlers[i];
+    if (h.match(parser)) {
+      if (h.handletxt) {
+        $.get(parser.href, function( data ) {
+          h.handletxt(data,tabId);
+        });
+      }
+    } else {
+      h.handle(parser, tabId);
+    }
+  };
+}
+
+var metahandlers = [{
+  type: "PubMed",
+  _reg: new RegExp("^/pubmed/[0-9]*", "i"),
+  match: function (parser) {
+    return parser.hostname === "www.ncbi.nlm.nih.gov" && this._reg.exec(parser.pathname);
+  },
+  handle: function (parser, tabId) {
+    chrome.tabs.sendMessage(tabId, {action:"FindPubMedArticleLink"}, function (response) {
+      if (response && response.url) {
+
+        parser.href = response.url;
+
+        handleMeta(parser, tabId);
       }
     });
   }

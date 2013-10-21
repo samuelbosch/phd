@@ -49,6 +49,14 @@ function tabUpdated(tabId, changeInfo, tab) {
     }
   };
 
+  for (var i = 0; i < metahandlers.length; i++) {
+    var handler = metahandlers[i]
+    if(handler.match(parser)) {
+      handler.handle(parser,tabId)
+      return;
+    }
+  };
+
   tabs[tabId] = null;
   chrome.pageAction.hide(tabId);
   
