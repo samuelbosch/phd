@@ -1,8 +1,11 @@
 - add logic for other journal websites
-- create windows utility to copy downloaded files from the Downloads directory to the papers directory and rename the files from .paper to .pdf
+- repurpose and existing or create a cross-platform utility to copy downloaded files from the Downloads directory to the papers directory (user defined) and rename the files from .paper to .pdf
 - prevent ad hoc dissapearing of tab info and the page action
 - try detect if a user has access to a paper and redirect to e.g. Google Scholar if not
 - add inline download buttons in e.g. Google Scholar, Sfx, ...
 - indicate if you already have the pdf in your (Mendeley) library and provide an open button/link
 - handle case when url contains .pdf but it's not a pdf (e.g. http://www.ugent.be/we/biology/nl/onderwijs/bamaproeven/2013-2014/niet-gekozen-baproef-1213.pdf)
 - ask for username/gravatar to use with TogetherJS
+- add support for keyboard shortcuts
+- replace popup menu with top of the screen toolbar (see if possible in case of a pdf), continue to use page action for direct download only
+- add gittip
