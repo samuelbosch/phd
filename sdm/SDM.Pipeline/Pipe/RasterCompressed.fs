@@ -285,7 +285,9 @@ module RasterCompressed =
 
         let rowCount = int header.["nrows"]
         let colCount = int header.["ncols"]
-        let nodata = header.["NODATA_value"]
+        let mutable nodata = ""
+        if not (header.TryGetValue("NODATA_value", &nodata)) then 
+            nodata <- "-99999"
 
         let info = {ColumnCount=colCount; RowCount=rowCount; ValueScaleFactor=valueScaleFactor; Nodata=nodata}
         let inline splitLine (x:string) = x.Trim([|' '; '\n'|]).Split([|' '|])
