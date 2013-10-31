@@ -81,13 +81,13 @@ module PositionsDepth =
         List.fold maxAcc (0, Double.MinValue) values
 
     let handlePositions() = 
-        let positions = loadPositions """D:\temp\all_positions.csv""" |> Seq.take 1 // first 100 for testing
+        let positions = loadPositions """D:\temp\all_positions.csv""" //|> Seq.take 1 // first 100 for testing
         
         // calculate raster x, y
         // get value from the 3 rasters
         // update value in DB
-        let rasters = ["""D:\a\data\gebco\gebco_gridone.asc""";"""D:\a\data\etopo\etopo1_bed_c.asc"""; """D:\a\data\marspec\MARSPEC_30s\ascii\bathy_30s.asc"""]
-                      |> Seq.take 1 |> List.ofSeq
+        let rasters = ["""D:\a\data\gebco\gebco_gridone.asc""";"""D:\a\data\etopo\etopo1_ice_c.asc"""; """D:\a\data\marspec\MARSPEC_30s\ascii\bathy_30s.asc"""]
+                      //|> Seq.take 1 |> List.ofSeq
                       |> List.map (fun p -> OutlierAlgorithms.timeit ("load " + p) (RasterCompressed.loadAscii p) 1.0)
         
         printfn "loaded rasters"
