@@ -59,7 +59,9 @@ module Program =
         //RasterCompressed.benchmarkBigFile()
         //RasterCompressed.benchmark_marspec_10m()
 
-        PositionsDepth.handlePositions()
+        //PositionsDepth.toMinValues [(1,Some(213.0));(1,Some(124.0))] |> ignore
+        //PositionsDepth.handlePositions()
+        PositionsDepth.handlePositions2()
 
         // main entry point return
         Console.WriteLine("Hit key to close")

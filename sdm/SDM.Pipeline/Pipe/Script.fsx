@@ -18,3 +18,5 @@ RasterCompressed.getValue info data (3449*1<px>) (3206*1<px>);;
 
 let r = Raster.loadAscii """D:\a\data\gebco\gebco_gridone.asc""";;
 r.Rows |> Seq.skip 3205*21601 |> Seq.skip 3448 |> Seq.head;;
+
+toMinValues [(1,Some(213.0));(1,Some(124.0))];;
