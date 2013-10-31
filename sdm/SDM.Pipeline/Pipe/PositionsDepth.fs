@@ -4,7 +4,6 @@ open System.IO
 open System
 open System.Globalization
 open System.Configuration
-open Dapper
 open RasterCompressed
 
 module PositionsDepth =
@@ -26,56 +25,85 @@ module PositionsDepth =
 
     let pixelY info position = toPixel 180.0 info.RowCount info.RowCount (-1.0*position.Lat)
     let pixelX info position = toPixel 360.0 info.ColumnCount 1 position.Lon
-     
-    
 
     let toIdxy info position = 
-        //let height = width / 2
-        let x = toPixel 360.0 info.ColumnCount position.Lon
-        let y = toPixel -180.0 info.RowCount position.Lat // -180.0 because we count in the opposite direction
-        1
+        let x = pixelX info position
+        let y = pixelY info position
+        (position.Id, x,y)
 
     let toPosition (row:String) = 
         let columns = row.Split('|')
         { Id= (int (columns.[0])); Lon=(float (columns.[1])); Lat=(float (columns.[2])) }
 
     let loadPositions file = 
-        File.ReadAllLines file
-        |> Seq.map toPosition
+        let r = File.ReadAllLines file
+                |> Seq.skip 1 // skip header row
+                |> Seq.map toPosition
+        printfn "loaded positions"
+        r
+
+    let getRasterValues positions (info,data) =
+        let getRasterValue ((x,y),seq) = 
+            let v = RasterCompressed.getValue info data x y
+            Seq.map (fun (id,x,y) -> (id,v)) seq
+
+        positions 
+        |> Seq.map (toIdxy info)
+        |> Seq.groupBy (fun (id,x,y) -> (x,y))
+        |> Seq.collect getRasterValue // get values for all ids
+        |> Seq.sortBy fst // sort by id
+
+    // converts a list of sequences to a sequence of lists
+    // when one sequence is exhausted any remaining elements in the other sequences are ignored
+    // sample usage:
+    // printfn "%A" (zipseq [seq {1 .. 3}; seq {1 .. 4}; seq{1 .. 3}])
+    let zipseq (sequencelist:list<seq<'a>>) = 
+        let enumerators = sequencelist |> List.map (fun (s:seq<'a>) -> (s.GetEnumerator()))
+        seq {
+            let hasNext() = enumerators |> List.exists (fun e -> not (e.MoveNext())) |> not
+            while hasNext() do
+                yield enumerators |> List.map (fun e -> e.Current)
+        }
 
 
+    let toMinValues (values:(int*float option) list) = 
+        let minAcc (_, currentValue) (id, newValue) = 
+            match newValue with 
+            | Some(v) when v < currentValue -> (id, v) 
+            | _ -> (id, currentValue)
+        List.fold minAcc (0, Double.MaxValue) values
 
-    let positions = 
-        //let conn = DB.connect()
-        //let positions = conn.Query<Position>("SELECT id, longitude lon, latitude lat FROM obis.positions ORDER BY longitude, latitude")
+    let toMaxValues (values:(int*float option) list) = 
+        let maxAcc (_, currentValue) (id, newValue) = 
+            match newValue with 
+            | Some(v) when v > currentValue -> (id, v) 
+            | _ -> (id, currentValue)
+        List.fold maxAcc (0, Double.MinValue) values
 
-        let positions = loadPositions """D:\temp\all_positions.csv"""
-
-        positions
-
-
+    let handlePositions() = 
+        let positions = loadPositions """D:\temp\all_positions.csv""" |> Seq.take 1 // first 100 for testing
+        
         // calculate raster x, y
         // get value from the 3 rasters
         // update value in DB
-        let rasters = ["""gebco_gridone.asc""";"""etopo1_bed_c.asc"""; """bathy_30s.asc"""]
-                      |> Seq.map (fun p -> RasterCompressed.loadAscii p 1.0)
+        let rasters = ["""D:\a\data\gebco\gebco_gridone.asc""";"""D:\a\data\etopo\etopo1_bed_c.asc"""; """D:\a\data\marspec\MARSPEC_30s\ascii\bathy_30s.asc"""]
+                      |> Seq.take 1 |> List.ofSeq
+                      |> List.map (fun p -> OutlierAlgorithms.timeit ("load " + p) (RasterCompressed.loadAscii p) 1.0)
         
+        printfn "loaded rasters"
         
-        //getValue info data x y
-
-        1
-        //let marspecIdXy = Seq.map (toIdxy info.ColumnCount) positions 
-
-//        let trans = conn.BeginTransaction()
-//        let depth = 2.0
-//        let ids = [|1|]
-//        let idstr = String.Join(",", (Seq.map string ids))
-//        //let updateCount = conn.Execute((sprintf "UPDATE obis.positions SET mindepth = %f WHERE id IN (%s)" depth idstr) , transaction=trans)
-//
-//        trans.Commit()
-
+        let valuesPerRaster = List.map (getRasterValues positions) rasters
+        let zippedValues = zipseq valuesPerRaster
         
-         
+        let minvalues = zippedValues |> Seq.map toMinValues
+        let grouped = minvalues |> Seq.groupBy snd
+        let idstr seq = String.Join(",", (Seq.map (fst>>string) seq))
+        let update (depth, seq) = sprintf "UPDATE obis.positions SET mindepth = %f WHERE id IN (%s)" depth (idstr seq)
+        
+        let lines = grouped |> Seq.map update |> List.ofSeq (* trigger sequence execution till the end *)
+        File.WriteAllLines("""D:\temp\min_depth_positions.sql""", lines)
+        lines |> List.map (printfn "%s") |> ignore
+        
 (*
 
     let assertp a b =
@@ -112,4 +140,11 @@ module PositionsDepth =
         assertp (x 179.999) 4320<px>
         assertp (x 180.0) 1<px>
 
+*)
+(*
+#I @"D:\a\Google Drive\code\sdm\SDM.Pipeline\Pipe\bin\Release"
+#r "Pipe"
+open SB.SDM.Pipeline.Pipe
+open PositionsDepth
+#time "on"
 *)

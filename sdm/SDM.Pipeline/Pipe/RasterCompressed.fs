@@ -156,7 +156,7 @@ module RasterCompressed =
     // FastPFOR is not threadsafe
     //let private codec = new System.Threading.ThreadLocal<_>(fun () -> (new Composition(new FastPFOR(), new VariableByte()) :> IntegerCODEC))
     let private codec = new System.Threading.ThreadLocal<_>(fun () -> (new Composition(new Simple9(), new VariableByte()) :> IntegerCODEC))
-    
+
     let compressFastPFOR (deltaRow:DeltaRow) = 
         if deltaRow.Delta.Length > 0 then
             let inputoffset = new IntWrapper(0)
@@ -281,7 +281,8 @@ module RasterCompressed =
     
     let loadAscii path valueScaleFactor =
         let lines = File.ReadLines(path)
-        let header = lines.Take(6).ToDictionary((fun (l:string) -> l.Split([|' '|]).[0]), (fun (l:string) -> l.TrimEnd([|'\n'|]).Split([|' '|]).Last()))
+        let isHeader (l:string) = (l.Length < 1000)
+        let header = lines.TakeWhile(isHeader).ToDictionary((fun (l:string) -> l.Split([|' '|], StringSplitOptions.RemoveEmptyEntries).[0]), (fun (l:string) -> l.TrimEnd([|'\n'|]).Split([|' '|]).Last()))
 
         let rowCount = int header.["nrows"]
         let colCount = int header.["ncols"]
@@ -290,12 +291,14 @@ module RasterCompressed =
             nodata <- "-99999"
 
         let info = {ColumnCount=colCount; RowCount=rowCount; ValueScaleFactor=valueScaleFactor; Nodata=nodata}
-        let inline splitLine (x:string) = x.Trim([|' '; '\n'|]).Split([|' '|])
-        let values = lines.Skip(6)
+        let inline splitLine (x:string) = x.Trim([|' '; '\n'|]).Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
+        let values = lines.SkipWhile(isHeader)
 
         let bitmap, deltas = 
             values
-            |> PSeq.map (splitLine >> (parseRow2 info))
+            |> System.Linq.ParallelEnumerable.AsParallel
+            |> System.Linq.ParallelEnumerable.AsOrdered 
+            |> PSeq.map (splitLine >> (parseRow2 info)) // PSeq changes order of the sequence
             |> Array.ofSeq
             |> Array.unzip
         
