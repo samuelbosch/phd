@@ -248,7 +248,7 @@ open PositionsDepth
         
         //File.WriteAllLines("""D:\temp\all_depths.txt""", (zippedValues |> Seq.map (sprintf "%A")))
         let zippedValues = getZippedValues2 (positions |> Array.ofSeq)
-        let minvalues = zippedValues |> Seq.map toMinValues
+        let minvalues = zippedValues |> Seq.map toMinValues |> List.ofSeq
         let grouped = minvalues |> Seq.groupBy snd
         let idstr seq = String.Join(",", (Seq.map (fst>>string) seq))
         let update (depth, seq) = sprintf "UPDATE obis.positions SET mindepth = %f WHERE id IN (%s);" depth (idstr seq)
@@ -256,3 +256,10 @@ open PositionsDepth
         let lines = grouped |> Seq.map update |> List.ofSeq (* trigger sequence execution till the end *)
         File.WriteAllLines("""D:\temp\min_depth_positions.sql""", lines)
         lines |> Seq.take 10 |> List.ofSeq |> List.map (printfn "%s") |> ignore
+
+        //let toValues seq = String.Join(",", (Seq.map (fun (id, d) -> sprintf "(%i,%g)" id d) seq))
+        //let inserts =  sprintf "INSERT INTO qc.positions_depth (id, mindepth) VALUES %s;" (toValues minvalues)
+        //File.WriteAllLines("""D:\temp\insert_min_depth_positions.sql""", [|"DELETE FROM qc.positions_depth;";  inserts|]) |> ignore
+
+        let toLine seq = Seq.map (fun (id, d) -> sprintf "%i,%g" id d) seq
+        File.WriteAllLines("""D:\temp\insert_min_depth_positions.csv""", (toLine minvalues)) |> ignore
