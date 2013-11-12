@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Web
+# Visual Studio 2012
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pipe", "Pipe\Pipe.fsproj", "{B1E93A0E-ED6C-40C1-B412-84D2B64ED6FC}"
 EndProject
 Global

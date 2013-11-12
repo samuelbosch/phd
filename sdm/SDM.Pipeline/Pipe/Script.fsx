@@ -1,8 +1,14 @@
 ﻿// Learn more about F# at http://fsharp.net. See the 'F# Tutorial' project
 // for more guidance on F# programming.
 // Define your library scripting code here
-
+#r @"D:\a\Google Drive\code\sdm\SDM.Pipeline\packages\NetTopologySuite.1.13.1\lib\net40-client\NetTopologySuite.dll"
+#r @"D:\a\Google Drive\code\sdm\SDM.Pipeline\packages\NetTopologySuite.IO.1.13.1\lib\net40-client\NetTopologySuite.IO.GeoTools.dll"
+#r @"D:\a\Google Drive\code\sdm\SDM.Pipeline\packages\GeoAPI.1.7.1.1\lib\net40-client\GeoAPI.dll"
+#r @"D:\a\Google Drive\code\sdm\SDM.Pipeline\packages\ProjNET4GeoAPI.1.3.0.2\lib\net40-client\ProjNet.dll"
+#r @"D:\a\Google Drive\code\sdm\SDM.Pipeline\packages\DotSpatial.Projections.1.5.1\lib\net40-Client\DotSpatial.Projections.dll"
 #I @"D:\a\Google Drive\code\sdm\SDM.Pipeline\Pipe\bin\Release"
+
+
 #r "Pipe"
 open SB.SDM.Pipeline.Pipe
 open PositionsDepth
@@ -10,7 +16,7 @@ open PositionsDepth
 
 
 let (info, data) = List.head rasters;;
-val p : Position list = [{Id = 13369121;
+let p : Position list = [{Id = 13369121;
                           Lon = -122.5216904;
                           Lat = 36.58480835;}]
 

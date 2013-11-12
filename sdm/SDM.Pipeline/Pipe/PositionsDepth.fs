@@ -19,6 +19,17 @@ module PositionsDepth =
 
     type Position = { Id:int; Lon:float; Lat:float }
 
+    let toPosition (row:String) = 
+        let columns = row.Split('|')
+        { Id= (int (columns.[0])); Lon=(float (columns.[1])); Lat=(float (columns.[2])) }
+
+    let loadPositions file = 
+        let r = File.ReadAllLines file
+                |> Seq.skip 1 // skip header row
+                |> Seq.map toPosition
+        printfn "loaded positions"
+        r
+
     let toPixel range pixels endValue value = 
         let pixel = 1 + (int (Math.Truncate((value + (range/2.0)) * (float pixels / range))))
         match pixel with
@@ -35,17 +46,6 @@ module PositionsDepth =
     
     let isValidIdxy info (id, x:int<px>, y:int<px>) = 
         y > 0<px> && x > 0<px> && (int y) <= info.RowCount && (int x) <= info.ColumnCount
-
-    let toPosition (row:String) = 
-        let columns = row.Split('|')
-        { Id= (int (columns.[0])); Lon=(float (columns.[1])); Lat=(float (columns.[2])) }
-
-    let loadPositions file = 
-        let r = File.ReadAllLines file
-                |> Seq.skip 1 // skip header row
-                |> Seq.map toPosition
-        printfn "loaded positions"
-        r
 
     let getRasterValues positions (info,data) =
         let getRasterValue ((x,y),seq) = 
@@ -85,6 +85,15 @@ module PositionsDepth =
             | Some(v) when v > currentValue -> (id, v) 
             | _ -> (id, currentValue)
         List.fold maxAcc (0, Double.MinValue) values
+
+    let toMinMaxValues (values:(int*float option) list) = 
+        let minMaxAcc (_, currentMin, currentMax) (id, newValue) = 
+            match newValue with 
+            | Some(v) when v < currentMin && v > currentMax -> (id, v, v) 
+            | Some(v) when v < currentMin -> (id, v, currentMax) 
+            | Some(v) when v > currentMax -> (id, currentMin, v) 
+            | _ -> (id, currentMin, currentMax)
+        List.fold minMaxAcc (0, Double.MaxValue, Double.MinValue) values
 
 //    let getDepth positions rasterpath = 
 //        let pixelY rowCount position = toPixel 180.0 rowCount rowCount (-1.0*position.Lat)
@@ -249,13 +258,13 @@ open PositionsDepth
         //File.WriteAllLines("""D:\temp\all_depths.txt""", (zippedValues |> Seq.map (sprintf "%A")))
         let zippedValues = getZippedValues2 (positions |> Array.ofSeq)
         let minvalues = zippedValues |> Seq.map toMinValues |> List.ofSeq
-        let grouped = minvalues |> Seq.groupBy snd
-        let idstr seq = String.Join(",", (Seq.map (fst>>string) seq))
-        let update (depth, seq) = sprintf "UPDATE obis.positions SET mindepth = %f WHERE id IN (%s);" depth (idstr seq)
-        
-        let lines = grouped |> Seq.map update |> List.ofSeq (* trigger sequence execution till the end *)
-        File.WriteAllLines("""D:\temp\min_depth_positions.sql""", lines)
-        lines |> Seq.take 10 |> List.ofSeq |> List.map (printfn "%s") |> ignore
+//        let grouped = minvalues |> Seq.groupBy snd
+//        let idstr seq = String.Join(",", (Seq.map (fst>>string) seq))
+//        let update (depth, seq) = sprintf "UPDATE obis.positions SET mindepth = %f WHERE id IN (%s);" depth (idstr seq)
+//        
+//        let lines = grouped |> Seq.map update |> List.ofSeq (* trigger sequence execution till the end *)
+//        File.WriteAllLines("""D:\temp\min_depth_positions.sql""", lines)
+//        lines |> Seq.take 10 |> List.ofSeq |> List.map (printfn "%s") |> ignore
 
         //let toValues seq = String.Join(",", (Seq.map (fun (id, d) -> sprintf "(%i,%g)" id d) seq))
         //let inserts =  sprintf "INSERT INTO qc.positions_depth (id, mindepth) VALUES %s;" (toValues minvalues)
@@ -263,3 +272,12 @@ open PositionsDepth
 
         let toLine seq = Seq.map (fun (id, d) -> sprintf "%i,%g" id d) seq
         File.WriteAllLines("""D:\temp\insert_min_depth_positions.csv""", (toLine minvalues)) |> ignore
+
+
+    let handlePositions2MinMax() = 
+        let positions = loadPositions """D:\temp\all_positions.csv"""
+        let zippedValues = getZippedValues2 (positions |> Array.ofSeq)
+
+        let minmaxvalues = zippedValues |> Seq.map toMinMaxValues |> List.ofSeq
+        let toLine seq = Seq.map (fun (id, min,max) -> sprintf "%i,%g,%g" id min max) seq
+        File.WriteAllLines("""D:\temp\insert_min_max_depth_positions.csv""", (toLine minmaxvalues)) |> ignore
