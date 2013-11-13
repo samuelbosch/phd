@@ -63,8 +63,15 @@ module Program =
 //        //PositionsDepth.handlePositions()
 
         //PositionsDepth.handlePositions2()
-        LandDistance.handle()        
 
+        //LandDistance.splitPositions()
+        if args.Length > 0 then
+            let input = args.[0]
+            let coastlines = args.[1]
+            let output = args.[2]
+            LandDistance.handlePositions input coastlines output
+        else
+            LandDistance.handle()
 
         // main entry point return
         Console.WriteLine("Hit key to close")

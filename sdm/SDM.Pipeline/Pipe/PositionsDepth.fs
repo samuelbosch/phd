@@ -27,6 +27,7 @@ module PositionsDepth =
         let r = File.ReadAllLines file
                 |> Seq.skip 1 // skip header row
                 |> Seq.map toPosition
+                |> Seq.filter (fun p -> p.Lon > 180.0 || p.Lon < -180.0 || p.Lat > 90.0 || p.Lat < -90.0)
         printfn "loaded positions"
         r
 
