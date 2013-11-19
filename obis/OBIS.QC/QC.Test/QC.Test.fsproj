@@ -37,12 +37,18 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
     <Compile Include="ObisDbTest.fs" />
+    <Compile Include="OutlierAlgorithmsTest.fs" />
+    <Compile Include="StatisticsTest.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Dapper">
       <HintPath>..\packages\Dapper.1.13\lib\net45\Dapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FStats">
+      <HintPath>..\packages\FStats.0.2.21\lib\Net45\FStats.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FsUnit.NUnit">
