@@ -27,7 +27,7 @@ module PositionsDepth =
         let r = File.ReadAllLines file
                 |> Seq.skip 1 // skip header row
                 |> Seq.map toPosition
-                |> Seq.filter (fun p -> p.Lon > 180.0 || p.Lon < -180.0 || p.Lat > 90.0 || p.Lat < -90.0)
+                |> Seq.filter (fun p -> p.Lon <= 180.0 && p.Lon >= -180.0 && p.Lat <= 90.0 && p.Lat >= -90.0)
         printfn "loaded positions"
         r
 
@@ -95,6 +95,35 @@ module PositionsDepth =
             | Some(v) when v > currentMax -> (id, currentMin, v) 
             | _ -> (id, currentMin, currentMax)
         List.fold minMaxAcc (0, Double.MaxValue, Double.MinValue) values
+
+    let toMinMaxAvgValues (values:(int*float option) list) = 
+        let minMaxAvgAcc (_, currentMin, currentMax, sum, count) (id, newValue) =
+            match newValue with 
+            | Some(v) when v < currentMin && v > currentMax -> (id, v, v,sum+v, count+1) 
+            | Some(v) when v < currentMin -> (id, v, currentMax,sum+v, count+1) 
+            | Some(v) when v > currentMax -> (id, currentMin, v,sum+v, count+1) 
+            | Some(v) -> (id, currentMin, currentMax,sum+v, count+1) 
+            | None -> (id, currentMin, currentMax,sum,count)
+        let id, min, max, sum, count = List.fold minMaxAvgAcc (0, Double.MaxValue, Double.MinValue, 0., 0) values
+        id, min, max, (sum/(float count))
+
+    let toMinMaxAvgConsensusValues (values:(int*float option) list) = 
+        let id = fst values.Head
+        let values = values |> List.choose snd 
+        let consensus = 
+                values
+                |> List.sort 
+                |> List.ofSeq
+                |> Seq.windowed 2
+                |> Seq.map (fun l -> ((abs (abs l.[0]) - (abs l.[1])),(l.[0]+l.[1])/2.)) // absolute difference, average of 2
+                |> Seq.minBy fst // min absolute difference
+                |> snd // average
+        let min = List.min values
+        let max = List.max values
+        let avg = List.sum values / (float (List.length values))
+
+        id, min, max, avg, consensus
+        
 
 //    let getDepth positions rasterpath = 
 //        let pixelY rowCount position = toPixel 180.0 rowCount rowCount (-1.0*position.Lat)
@@ -282,3 +311,19 @@ open PositionsDepth
         let minmaxvalues = zippedValues |> Seq.map toMinMaxValues |> List.ofSeq
         let toLine seq = Seq.map (fun (id, min,max) -> sprintf "%i,%g,%g" id min max) seq
         File.WriteAllLines("""D:\temp\insert_min_max_depth_positions.csv""", (toLine minmaxvalues)) |> ignore
+
+    let handlePositions2MinMaxAvg() = 
+        let positions = loadPositions """D:\temp\all_positions.csv"""
+        let zippedValues = getZippedValues2 (positions |> Array.ofSeq)
+
+        let values = zippedValues |> Seq.map toMinMaxAvgValues |> List.ofSeq
+        let toLine seq = Seq.map (fun (id, min,max,avg) -> sprintf "%i,%g,%g,%g" id min max avg) seq
+        File.WriteAllLines("""D:\temp\insert_min_max_avg_depth_positions.csv""", (toLine values)) |> ignore
+
+    let handlePositions2MinMaxAvgConsensus() = 
+        let positions = loadPositions """D:\temp\all_positions.csv"""
+        let zippedValues = getZippedValues2 (positions |> Array.ofSeq)
+
+        let values = zippedValues |> Seq.map toMinMaxAvgConsensusValues |> List.ofSeq
+        let toLine seq = Seq.map (fun (id, min,max,avg,consensus) -> sprintf "%i,%g,%g,%g,%g" id min max avg consensus) seq
+        File.WriteAllLines("""D:\temp\insert_min_max_avg_consensus_depth_positions.csv""", (toLine values)) |> ignore
