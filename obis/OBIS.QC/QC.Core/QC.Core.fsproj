@@ -40,6 +40,8 @@
     <Compile Include="ObisDb.fs" />
     <Compile Include="Statistics.fs" />
     <Compile Include="OutlierAlgorithms.fs" />
+    <Compile Include="OutliersFlagging.fs" />
+    <Compile Include="DepthStats.fs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
