@@ -2,10 +2,12 @@
 
 Collection of scripts created for my phd, more will be added while my phd progresses.
 
-* obis: code related to data downloaded from [iobis.org](http://iobis.org)
+* experiments: trying out libraries
+* getpaper: a Google Chrome plugin for easier downloading of scientific papers
+* obis: helper program for the QC of the OBIS database and code related to data downloaded from [iobis.org](http://iobis.org)
+* outliers: code related to visualization of outliers
 * raster: code related to the processing of raster files
 * sdm: code related to species distribution modeling
-* outliers: code related to detection of outliers
 
 ## License
 
