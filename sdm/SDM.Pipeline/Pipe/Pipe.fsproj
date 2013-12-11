@@ -49,6 +49,7 @@
     <Compile Include="Export.fs" />
     <Compile Include="PositionsDepth.fs" />
     <Compile Include="LandDistance.fs" />
+    <Compile Include="AsciiDataExtractor.fs" />
     <Compile Include="Program.fs" />
     <None Include="Script.fsx" />
     <None Include="packages.config" />

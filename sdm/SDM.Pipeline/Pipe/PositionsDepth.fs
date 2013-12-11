@@ -123,7 +123,11 @@ module PositionsDepth =
         let avg = List.sum values / (float (List.length values))
 
         id, min, max, avg, consensus
-        
+    
+    let toGebcoEtopoMarspec (values:(int*float option) list) =
+        let id = fst values.Head
+        let values = values |> List.map snd
+        id, values.[0], values.[1], values.[2]
 
 //    let getDepth positions rasterpath = 
 //        let pixelY rowCount position = toPixel 180.0 rowCount rowCount (-1.0*position.Lat)
@@ -258,7 +262,7 @@ open PositionsDepth
                 while !i < line && linesE.MoveNext() do
                     i := !i+1
                     if !i = line then
-                        (splitLine linesE.Current) |> Array.mapi (fun i v -> (!current).[i] <- v) |> ignore // only split when we need the line
+                        current := (splitLine linesE.Current) // only split when we need the line
 
                 if !i = line then
                     let v = (!current).[col]
@@ -267,7 +271,7 @@ open PositionsDepth
                     else
                         yield (id, Some(float v))
         }
-        values |> List.ofSeq |> Seq.ofList // we need a sequence but we don't want to keep the raster in memory
+        values |> List.ofSeq |> List.sortBy fst |> Seq.ofList // we need a sequence but we don't want to keep the raster in memory
 
     let getZippedValues2 positions = 
         let valuesPerRaster = ["""D:\a\data\gebco\gebco_gridone.asc""";"""D:\a\data\etopo\etopo1_ice_c.asc""";"""D:\a\data\marspec\MARSPEC_30s\ascii\bathy_30s.asc"""]
@@ -327,3 +331,14 @@ open PositionsDepth
         let values = zippedValues |> Seq.map toMinMaxAvgConsensusValues |> List.ofSeq
         let toLine seq = Seq.map (fun (id, min,max,avg,consensus) -> sprintf "%i,%g,%g,%g,%g" id min max avg consensus) seq
         File.WriteAllLines("""D:\temp\insert_min_max_avg_consensus_depth_positions.csv""", (toLine values)) |> ignore
+
+    let handlePositions2exact() = 
+        let positions = loadPositions """D:\temp\all_positions.csv""" //|> Seq.take 1000 // first positions for testing
+        //let positions = seq { yield { Id=13192822; Lon=(-105.125); Lat=19.5666675567627 } |> Seq.ofList
+        //-74.0678558349609 11.3256063461304
+        let zippedValues = getZippedValues2 (positions |> Array.ofSeq)
+
+        let values = zippedValues |> Seq.map toGebcoEtopoMarspec |> List.ofSeq
+        let str x = if Option.isSome x then string x.Value else """NULL"""
+        let toLine seq = Seq.map (fun (id, gebco,etopo,marspec) -> sprintf "%i,%s,%s,%s" id (str gebco) (str etopo) (str marspec)) seq
+        File.WriteAllLines("""D:\temp\insert_exact_depth_positions.csv""", (toLine values)) |> ignore

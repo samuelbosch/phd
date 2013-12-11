@@ -63,6 +63,7 @@ module Program =
 //        //PositionsDepth.handlePositions()
 
         PositionsDepth.handlePositions2MinMaxAvgConsensus()
+        //PositionsDepth.handlePositions2exact()
 
 //        //LandDistance.splitPositions()
 //        if args.Length > 0 then
@@ -72,6 +73,8 @@ module Program =
 //            LandDistance.handlePositions input coastlines output
 //        else
 //            LandDistance.handle()
+
+        //AsciiDataExtractor.run """D:\temp\sites.csv""" """D:\a\data\marspec\MARSPEC_30s\Temperature_30s\ascii""" """D:\temp\sites_temp.csv"""
 
         // main entry point return
         Console.WriteLine("Hit key to close")

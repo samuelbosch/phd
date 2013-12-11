@@ -8,7 +8,7 @@ additionally you can rename the grids to some more clear names
 
 import os
 
-root = r"D:\a\data\marspec\MARSPEC_10m"
+root = r"D:\a\data\marspec\MARSPEC_30s\Temperature_30s"
 output = os.path.join(root, 'ascii')
 
 def create_bat():

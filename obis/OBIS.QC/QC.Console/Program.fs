@@ -10,7 +10,7 @@ let main argv =
     if argv.Length = 2 then
         DepthStats.run argv.[0] argv.[1]
     else
-        DepthStats.run """D:\temp\tname_depth2.csv""" """D:\temp\depth_stats2.csv"""
+        DepthStats.run """D:\temp\tname_depth.csv""" """D:\temp\depth_stats2.csv"""
 
     Console.WriteLine("Hit enter to close")
     Console.ReadLine() |> ignore
