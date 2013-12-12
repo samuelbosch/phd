@@ -7,8 +7,13 @@ open OBIS.QC.Core
 [<EntryPoint>]
 let main argv = 
     //printfn "%A" argv
-    if argv.Length = 2 then
-        DepthStats.run argv.[0] argv.[1]
+    if argv.[0].ToLower() = "depthstats" then
+        if argv.Length = 1 then
+            DepthStats.runDb()
+        else if argv.Length = 3 then
+            DepthStats.run argv.[1] argv.[2]
+        else
+            printfn "Invalid depthstats options pass no arguments or [inputfile] [outputfile]"
     else
         DepthStats.run """D:\temp\tname_depth.csv""" """D:\temp\depth_stats2.csv"""
 

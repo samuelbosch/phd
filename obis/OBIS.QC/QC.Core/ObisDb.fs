@@ -18,22 +18,15 @@ module ObisDb =
     }
 
     [<CLIMutable>]
-    type SpeciesValue = {
-        mutable DrId: int
-        mutable CurrentQc:bigint
-        mutable PositionId : int
-        mutable Value : float
+    type TnameDepth = {
+        mutable Id : int
+        mutable Depths : float []
     }
 
-    type UnivariateOutlierQC = {
-        QcNumber:int;
-        Method:string;
-        Treshold:float
-    }
-
-    type QcUpdate = {
-        DrIds:seq<int>;
-        QcNUmberManipulation:string
+    type DepthStats= {
+        Id:int;
+        Count:int;
+        Stats:float option []
     }
 
     let getInfo positionsTable = 
@@ -54,19 +47,32 @@ module ObisDb =
           FROM obis.positions p 
      LEFT JOIN %s j 
             ON p.id = j.id 
-         WHERE j.position_id IS NULL""" (fst (getInfo positionsTable)))
+         WHERE j.id IS NULL""" (fst (getInfo positionsTable)))
 
-    let querySpeciesValue (conn:IDbConnection) positionsTable tnameId =
-        let tableName, valueField = getInfo positionsTable
-        conn.Query<SpeciesValue>(sprintf """
-        SELECT drs.id DrId, drs.qc CurrentQc, p.position_id PositionId, p.%s Value
-          FROM %s p
-          JOIN obis.drs drs ON drs.position_id = pd.id
-          JOIN obis.snames sn ON drs.sname_id = sn.id
-        WHERE sn.tname_id = %i""" valueField tableName tnameId)
+    let queryTnameDepths (conn:IDbConnection) =
+        conn.Query<TnameDepth>(
+            """SELECT tname_id Id, Array_Agg(consensus) Depths
+                 FROM obis.drs drs
+                 JOIN obis.snames sn ON sn.id = drs.sname_id
+                 JOIN qc.positions_depth pd ON pd.id = drs.position_id
+             GROUP BY tname_id""")
+    
+    let internal copy (conn:Npgsql.NpgsqlConnection) table serializeRow (data:seq<'a>) = 
+        let copyTxt = sprintf "COPY %s FROM STDIN" table
+        let serializer = new Npgsql.NpgsqlCopySerializer(conn)
+        let copyIn = new Npgsql.NpgsqlCopyIn(copyTxt, conn)
+        copyIn.Start()
+        data |> Seq.iter (fun t -> (serializeRow serializer t)
+                                   serializer.EndRow()
+                                   serializer.Flush())
+        copyIn.End()
+        serializer.Close()
 
-    let queryUnivariateOutlierQc (conn:IDbConnection) speciesValueField = 
-        let parse (qcnumber:int) (q:string) = // q => e.g. univariateoutlier:depth:hampel:4.5
-            let parts = q.Split([|':'|], StringSplitOptions.RemoveEmptyEntries)
-            { QcNumber=qcnumber; Method=parts.[2]; Treshold=(float parts.[3]) }
-        conn.Query((sprintf "SELECT qcnumber, query FROM qc.queries WHERE query LIKE 'univariateoutlier:%s:%%'" speciesValueField), parse)
+    let copyDepthStats (conn:Npgsql.NpgsqlConnection) (stats:seq<DepthStats>) =
+        let serialize (ser:Npgsql.NpgsqlCopySerializer) (stat:DepthStats) =
+            ser.AddInt32(stat.Id)
+            ser.AddInt32(stat.Count)
+            stat.Stats |> Array.iter (fun f-> match f with 
+                                              | Some(x) -> ser.AddNumber(x) 
+                                              | None -> ser.AddNull())
+        copy conn "qc.depth_statistics" serialize stats
