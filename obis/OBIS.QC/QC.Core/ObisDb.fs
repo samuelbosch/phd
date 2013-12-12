@@ -6,6 +6,7 @@ open System.Configuration
 open System.Data
 
 module ObisDb =
+
     type PositionsTable =
     | Depth = 1
     | Distance = 2
@@ -21,6 +22,14 @@ module ObisDb =
     type TnameDepth = {
         mutable Id : int
         mutable Depths : float []
+    }
+
+    type PositionDepth = {
+        Id:int;
+        MinDepth:float;
+        MaxDepth:float;
+        AvgDepth:float;
+        Consensus:float
     }
 
     type DepthStats= {
@@ -41,8 +50,9 @@ module ObisDb =
         conn.Open()
         conn
 
-    let queryMissingPositions (conn:IDbConnection) positionsTable = 
-        conn.Query<Position>(sprintf """
+    let queryMissingPositions positionsTable = 
+        let conn = connect()
+        conn, conn.Query<Position>(sprintf """
         SELECT p.id Id, p.longitude Lon, p.latitude Lat
           FROM obis.positions p 
      LEFT JOIN %s j 
@@ -76,3 +86,19 @@ module ObisDb =
                                               | Some(x) -> ser.AddNumber(x) 
                                               | None -> ser.AddNull())
         copy conn "qc.depth_statistics" serialize stats
+
+    let copyPositionDepth (conn:Npgsql.NpgsqlConnection) (depths:seq<PositionDepth>) =
+        let serialize (ser:Npgsql.NpgsqlCopySerializer) (d:PositionDepth) =
+            ser.AddInt32(d.Id)
+            ser.AddNumber(d.MinDepth)
+            ser.AddNumber(d.MaxDepth)
+            ser.AddNumber(d.AvgDepth)
+            ser.AddNumber(d.Consensus)
+        copy conn "qc.positions_depth" serialize depths
+
+    let timeit fname f v = 
+        let watch = System.Diagnostics.Stopwatch.StartNew()
+        let res = f v 
+        watch.Stop()
+        printfn "Needed %f ms for %s" (watch.Elapsed.TotalMilliseconds) fname
+        res
