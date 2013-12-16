@@ -24,11 +24,11 @@ module DepthStats =
     let runDb() = 
         let conn = ObisDb.connect()
                 
-        ObisDb.queryTnameDepths conn
+        timeit "Query tname depths" ObisDb.queryTnameDepths conn
         |> Seq.map (fun td -> 
                         let stats = applystatfuncs (td.Depths)
                         { Id= td.Id;Count=(td.Depths.Length); Stats=stats })
-        |> ObisDb.copyDepthStats conn
+        |> timeit "Copy depth stats" ObisDb.copyDepthStats conn
 
     // file based version
     let load input = // making more ram friendly by making load a separate function
@@ -44,8 +44,8 @@ module DepthStats =
                         let data = data |> Seq.map snd |> Array.ofSeq
                         let stats = applystatfuncs data 
                                         |> Array.map (fun s -> match s with 
-                                        | Some(s) -> string s 
-                                        | None -> """\N""") // NULL
+                                                                | Some(s) -> string s 
+                                                                | None -> """\N""") // NULL
                         sprintf "%i,%i,%s" tnameid (Seq.length data) (String.Join(",", stats)))
         |> File.writeAllLines output
         |> ignore

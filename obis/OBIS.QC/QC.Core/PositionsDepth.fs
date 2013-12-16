@@ -90,7 +90,7 @@ module PositionsDepth =
         let handle (rasterType:string) = 
             let path = System.Configuration.ConfigurationManager.AppSettings.[rasterType]
             let lines = File.ReadLines(path)
-            ObisDb.timeit ("get values " + rasterType) (getValues positions) lines
+            timeit ("Get values " + rasterType) (getValues positions) lines
 
         let valuesPerRaster = List.map handle ["gebco";"etopo";"marspec"]
         
@@ -98,10 +98,9 @@ module PositionsDepth =
         zippedValues
 
     let runDb() = 
-        let conn, positions = ObisDb.queryMissingPositions ObisDb.PositionsTable.Depth 
+        let conn, positions = timeit "Query positions" ObisDb.queryMissingPositions ObisDb.PositionsTable.Depth 
         positions
         |> Array.ofSeq
-        |> getDepths
+        |> timeit "Get depths" getDepths
         |> Seq.map toMinMaxAvgConsensusValues
-        |> ObisDb.copyPositionDepth conn
-
+        |> timeit "Copy postion depths" ObisDb.copyPositionDepth conn

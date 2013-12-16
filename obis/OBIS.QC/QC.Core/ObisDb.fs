@@ -6,7 +6,6 @@ open System.Configuration
 open System.Data
 
 module ObisDb =
-
     type PositionsTable =
     | Depth = 1
     | Distance = 2
@@ -32,11 +31,23 @@ module ObisDb =
         Consensus:float
     }
 
+    type PositionDistance = {
+        Id:int;
+        LandDistance:float;
+    }
+
     type DepthStats= {
         Id:int;
         Count:int;
         Stats:float option []
     }
+
+    let timeit fname f v = 
+        let watch = System.Diagnostics.Stopwatch.StartNew()
+        let res = f v 
+        watch.Stop()
+        Console.WriteLine(sprintf "Needed %f ms for '%s'" (watch.Elapsed.TotalMilliseconds) fname)
+        res
 
     let getInfo positionsTable = 
         match positionsTable with
@@ -78,7 +89,7 @@ module ObisDb =
         copyIn.End()
         serializer.Close()
 
-    let copyDepthStats (conn:Npgsql.NpgsqlConnection) (stats:seq<DepthStats>) =
+    let copyDepthStats (conn:Npgsql.NpgsqlConnection) stats =
         let serialize (ser:Npgsql.NpgsqlCopySerializer) (stat:DepthStats) =
             ser.AddInt32(stat.Id)
             ser.AddInt32(stat.Count)
@@ -87,7 +98,7 @@ module ObisDb =
                                               | None -> ser.AddNull())
         copy conn "qc.depth_statistics" serialize stats
 
-    let copyPositionDepth (conn:Npgsql.NpgsqlConnection) (depths:seq<PositionDepth>) =
+    let copyPositionDepth (conn:Npgsql.NpgsqlConnection) depths =
         let serialize (ser:Npgsql.NpgsqlCopySerializer) (d:PositionDepth) =
             ser.AddInt32(d.Id)
             ser.AddNumber(d.MinDepth)
@@ -96,9 +107,8 @@ module ObisDb =
             ser.AddNumber(d.Consensus)
         copy conn "qc.positions_depth" serialize depths
 
-    let timeit fname f v = 
-        let watch = System.Diagnostics.Stopwatch.StartNew()
-        let res = f v 
-        watch.Stop()
-        printfn "Needed %f ms for %s" (watch.Elapsed.TotalMilliseconds) fname
-        res
+    let copyPositionDistance (conn:Npgsql.NpgsqlConnection) distances =
+        let serialize (ser:Npgsql.NpgsqlCopySerializer) (d:PositionDistance) =
+            ser.AddInt32(d.Id)
+            ser.AddNumber(d.LandDistance)
+        copy conn "qc.positions_distance" serialize distances

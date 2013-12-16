@@ -7,7 +7,7 @@ open Microsoft.FSharp.Collections
 open NetTopologySuite.IO
 open NetTopologySuite.Geometries
 open NetTopologySuite.Index.Strtree
-open NetTopologySuite.Index.Quadtree
+//open NetTopologySuite.Index.Quadtree
 open GeoAPI.Geometries
 open PositionsDepth
 
