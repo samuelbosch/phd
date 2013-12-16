@@ -9,3 +9,4 @@
 - add support for keyboard shortcuts
 - replace popup menu with top of the screen toolbar (see if possible in case of a pdf), continue to use page action for direct download only
 - add gittip
+- add bitcoin donation button
