@@ -7,20 +7,26 @@ TODO:
 
 """
 
-import subprocess
-from collections import deque
-from multiprocessing import Pool
+import subprocess, time
+from multiprocessing import Pool,Queue
 
-counts = deque([])
+q = Queue()
 
 def executequeries(id):
     try:
-        print "start execute [%s]" % id
+##        print "start execute [%s]" % id
         result = subprocess.check_output(["psql", "-d", "obis", "-c", "SELECT qc.execute_queries(Array["+id+"])"])
+
+        total = 0
+        for i in range(q.qsize()):
+            total = total + q.get()
+            
         c = result.split('\n')[2:-3][0].strip()
         if c.isdigit():
-            counts.append(int(c))
-        print "processed %s rows [total: %i]" % (c, sum(counts))
+            total = total + int(c)
+            
+        q.put(total)
+        print "processed %s rows [total: %i]" % (c, total)
         return -1
     except:
         print "failed [%s] will retry later" % id
@@ -35,9 +41,10 @@ def run(p, ids):
         return []
 
 if __name__ == '__main__':
+    start = time.time()
     ids = subprocess.check_output(["psql", "-d", "obis", "-c", "SELECT r.imis_dasid FROM obis.resources r"])
     ids = [x.strip() for x in ids.split('\n')[2:-3]]
-
+    
     p = Pool(3)
     failed_ids = run(p,ids)
     # retry 5 times
@@ -46,3 +53,4 @@ if __name__ == '__main__':
     failed_ids = run(p,failed_ids)
     failed_ids = run(p,failed_ids)
     failed_ids = run(p,failed_ids)
+    print 'processing took %0.3f ms' % ((time.time()-start)*1000.0)
