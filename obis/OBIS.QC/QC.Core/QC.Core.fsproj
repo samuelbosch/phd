@@ -41,6 +41,7 @@
     <Compile Include="Statistics.fs" />
     <Compile Include="OutlierAlgorithms.fs" />
     <Compile Include="DepthStats.fs" />
+    <Compile Include="PositionsRaster.fs" />
     <Compile Include="PositionsDepth.fs" />
     <Compile Include="LandDistance.fs" />
     <None Include="packages.config" />

@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<VSPerformanceSession Version="1.00">
+  <Options>
+    <Solution>OBIS.QC.sln</Solution>
+    <CollectionMethod>Sampling</CollectionMethod>
+    <AllocationMethod>None</AllocationMethod>
+    <AddReport>true</AddReport>
+    <ResourceBasedAnalysisSelected>true</ResourceBasedAnalysisSelected>
+    <UniqueReport>Timestamp</UniqueReport>
+    <SamplingMethod>Cycles</SamplingMethod>
+    <CycleCount>10000000</CycleCount>
+    <PageFaultCount>10</PageFaultCount>
+    <SysCallCount>10</SysCallCount>
+    <SamplingCounter Name="" ReloadValue="00000000000f4240" DisplayName="" />
+    <RelocateBinaries>false</RelocateBinaries>
+    <HardwareCounters EnableHWCounters="false" />
+    <EtwSettings />
+    <PdhSettings>
+      <PdhCountersEnabled>false</PdhCountersEnabled>
+      <PdhCountersRate>500</PdhCountersRate>
+      <PdhCounters>
+        <PdhCounter>\Memory\Pages/sec</PdhCounter>
+        <PdhCounter>\PhysicalDisk(_Total)\Avg. Disk Queue Length</PdhCounter>
+        <PdhCounter>\Processor(_Total)\% Processor Time</PdhCounter>
+      </PdhCounters>
+    </PdhSettings>
+  </Options>
+  <ExcludeSmallFuncs>true</ExcludeSmallFuncs>
+  <InteractionProfilingEnabled>false</InteractionProfilingEnabled>
+  <JScriptProfilingEnabled>false</JScriptProfilingEnabled>
+  <PreinstrumentEvent>
+    <InstrEventExclude>false</InstrEventExclude>
+  </PreinstrumentEvent>
+  <PostinstrumentEvent>
+    <InstrEventExclude>false</InstrEventExclude>
+  </PostinstrumentEvent>
+  <Binaries>
+    <ProjBinary>
+      <Path>QC.Console\obj\Release\obisqc.exe</Path>
+      <ArgumentTimestamp>01/01/0001 00:00:00</ArgumentTimestamp>
+      <Instrument>true</Instrument>
+      <Sample>true</Sample>
+      <ExternalWebsite>false</ExternalWebsite>
+      <InteractionProfilingEnabled>false</InteractionProfilingEnabled>
+      <IsLocalJavascript>false</IsLocalJavascript>
+      <IsWindowsStoreApp>false</IsWindowsStoreApp>
+      <IsWWA>false</IsWWA>
+      <LaunchProject>true</LaunchProject>
+      <OverrideProjectSettings>false</OverrideProjectSettings>
+      <LaunchMethod>Executable</LaunchMethod>
+      <ExecutablePath>QC.Console\bin\Release\obisqc.exe</ExecutablePath>
+      <StartupDirectory>QC.Console\bin\Release</StartupDirectory>
+      <NetAppHost>IIS</NetAppHost>
+      <NetBrowser>InternetExplorer</NetBrowser>
+      <ExcludeSmallFuncs>true</ExcludeSmallFuncs>
+      <JScriptProfilingEnabled>false</JScriptProfilingEnabled>
+      <PreinstrumentEvent>
+        <InstrEventExclude>false</InstrEventExclude>
+      </PreinstrumentEvent>
+      <PostinstrumentEvent>
+        <InstrEventExclude>false</InstrEventExclude>
+      </PostinstrumentEvent>
+      <ProjRef>{61D3DB99-C05C-4FF0-B726-EF179F23ABDE}|QC.Console\QC.Console.fsproj</ProjRef>
+      <ProjPath>QC.Console\QC.Console.fsproj</ProjPath>
+      <ProjName>QC.Console</ProjName>
+    </ProjBinary>
+  </Binaries>
+  <Reports>
+    <Report>
+      <Path>obisqc131216.vsp</Path>
+    </Report>
+    <Report>
+      <Path>obisqc131216(1).vsp</Path>
+    </Report>
+    <Report>
+      <Path>obisqc131216(2).vsp</Path>
+    </Report>
+  </Reports>
+  <Launches>
+    <ProjBinary>
+      <Path>:PB:{61D3DB99-C05C-4FF0-B726-EF179F23ABDE}|QC.Console\QC.Console.fsproj</Path>
+    </ProjBinary>
+  </Launches>
+</VSPerformanceSession>

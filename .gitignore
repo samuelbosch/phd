@@ -41,6 +41,7 @@ apikeys.py
 obj
 packages
 *.suo
+*.vsp
 
 # other
 desktop.ini

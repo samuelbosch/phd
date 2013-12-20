@@ -76,6 +76,10 @@ module ObisDb =
                  FROM obis.drs drs
                  JOIN obis.snames sn ON sn.id = drs.sname_id
                  JOIN qc.positions_depth pd ON pd.id = drs.position_id
+                 JOIN qc.positions_distance pdist ON pdist.id = drs.position_id
+                WHERE (NULLIF(longitude,0) IS NOT NULL AND NULLIF(latitude,0) IS NOT NULL) -- QC 4
+                  AND ((longitude BETWEEN -180 AND 180) AND (latitude BETWEEN -90 AND 90)) -- QC 5
+                  AND (mindepth <= 0 AND landdistance > -20000) -- QC 6
              GROUP BY tname_id""")
     
     let internal copy (conn:Npgsql.NpgsqlConnection) table serializeRow (data:seq<'a>) = 
