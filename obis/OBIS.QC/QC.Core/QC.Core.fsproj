@@ -46,6 +46,7 @@
     <Compile Include="LandDistance.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
+    <None Include="data_preparation.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Dapper">

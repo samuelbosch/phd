@@ -17,8 +17,8 @@ let main argv =
             else if argv.Length = 3 then LandDistance.runFiles argv.[1] argv.[2]
             else printfn "Invalid landdistance options, pass no arguments or [inputfile] [outputfile]"
     else
-        //DepthStats.run """D:\temp\tname_depth.csv""" """D:\temp\depth_stats2.csv"""
-        LandDistance.runFiles """D:\temp\all_positions.csv""" """D:\temp\landdistance_positions.csv"""
+        DepthStats.run """D:\temp\tname_depth.csv""" """D:\temp\depth_stats.csv"""
+        //LandDistance.runFiles """D:\temp\all_positions.csv""" """D:\temp\landdistance_positions.csv"""
     
     
 

@@ -122,7 +122,7 @@ module LandDistance =
         let maxy = (Math.Min(y + expand, 90.0))
         yield new Envelope(minx, maxx, miny, maxy)
         if x - expand < -180.0 then
-            yield new Envelope(360.0-(x-expand), 180.0, miny, maxy)
+            yield new Envelope(360.0+(x-expand), 180.0, miny, maxy)
         if x + expand > 180.0 then
             yield new Envelope(-180.0, (x+expand)-360.0, miny, maxy)
     }
