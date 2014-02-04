@@ -1,3 +1,9 @@
+// http://processing.org/tutorials/p3d/
+// http://www.jasondavies.com/maps/azimuth-distance/
+// http://www.radicalcartography.net/?projectionref
+// https://en.wikipedia.org/wiki/Hammer_projection
+
+
 /**
  * based on Texture Sphere by Mike 'Flux' Chang (cleaned up by Aaron Koblin). Based on code by Toxi. 
  */ 
@@ -25,13 +31,13 @@ int SINCOS_LENGTH = int(360.0 / SINCOS_PRECISION);
 
 void setup() {
   size(400, 400, P3D);  
-  texmap = loadImage("world32k.jpg");    
+  texmap = loadImage("world32k.jpg");   
   initializeSphere(sDetail);
 }
 
 void draw() {    
   background(0);            
-  rotationY += 0.2; // spinning globe
+  rotationY -= 0.2; // spinning globe
   renderGlobe();
 }
 
