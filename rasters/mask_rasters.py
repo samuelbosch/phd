@@ -1,8 +1,8 @@
 import os
 
 mask = r'D:\a\data\marspec\processed\bathy_5m_mask_250.tif'
-source = r'D:\a\data\BioOracle_GLOBAL_RV'
-destination = r'D:\a\data\BioOracle_GLOBAL_RV_min250'
+source = r'D:\a\data\BioOracle_scenarios'
+destination = r'D:\a\data\BioOracle_scenarios_min250'
 with open('mask_rasters.bat', 'w') as bat:
     ## load OSGEO4W
     bat.write(r"""@echo off
@@ -18,12 +18,15 @@ rem Add application-specific environment settings
 for %%f in ("%OSGEO4W_ROOT%\etc\ini\*.bat") do call "%%f"
 """)
     bat.write('cd ' + os.getcwd() + '\n')
-    for f in os.listdir(source):
-        if f.endswith('.asc'):
-            infile = os.path.join(source, f)
-            temptif = os.path.join(destination, f.replace('.asc', '.tif'))
-            outfile = os.path.join(destination, f)
-            bat.write('gdal_calc.py -A "%s" -B "%s" --calc="A*B" --outfile="%s" --NoDataValue=-9999\n' % (mask, infile, temptif))
-            bat.write('gdal_translate -of AAIGrid "%s" "%s"\n' % (temptif,outfile))
-            bat.write('del "%s"\n' % temptif)
+    for root, dirs, files in os.walk(source):
+        treedest = root.replace(source, destination)
+        if not os.path.exists(treedest): os.mkdir(treedest)
+        for f in files:
+            if f.endswith('.asc'):
+                infile = os.path.join(root, f)
+                temptif = os.path.join(treedest, f.replace('.asc', '.tif'))
+                outfile = os.path.join(treedest, f)
+                bat.write('gdal_calc.py -A "%s" -B "%s" --calc="A*B" --outfile="%s" --NoDataValue=-9999\n' % (mask, infile, temptif))
+                bat.write('gdal_translate -of AAIGrid "%s" "%s"\n' % (temptif,outfile))
+                bat.write('del "%s"\n' % temptif)
             
