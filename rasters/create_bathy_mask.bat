@@ -16,4 +16,4 @@ cd /D D:\a\data\marspec
 rem Create virtual file with nodata set to nothing
 gdalbuildvrt -srcnodata None -vrtnodata None processed\bathy_5m_no_null.vrt MARSPEC_5m\ascii\bathy_5m.asc
 rem set value to 1 when value is nodata (avoid setting near-shore BIO-Oracle cells to NoData) or value is bigger then -250
-gdal_calc.py -A processed\bathy_5m_no_null.vrt --calc="numpy.logical_or((A == -32768),( A >= -250))" --outfile=processed\bathy_5m_mask_250.tif --NoDataValue=-9999
+gdal_calc.py -A processed\bathy_5m_no_null.vrt --calc="((numpy.logical_or((A == -32768),( A >= -250))-1)*32769)+1" --outfile=processed\bathy_5m_mask_250_x.tif --NoDataValue=-32768
