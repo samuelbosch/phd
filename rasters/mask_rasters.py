@@ -18,7 +18,7 @@ rem Add application-specific environment settings
 for %%f in ("%OSGEO4W_ROOT%\etc\ini\*.bat") do call "%%f"
 """)
     bat.write('cd ' + os.getcwd() + '\n')
-    for f in os.listdir(source)[:2]:
+    for f in os.listdir(source):
         if f.endswith('.asc'):
             infile = os.path.join(source, f)
             temptif = os.path.join(destination, f.replace('.asc', '.tif'))
