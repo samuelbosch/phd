@@ -1,12 +1,2 @@
-gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\Temperature_30s\sst01_30s D:\a\data\marspec\MARSPEC_30s\Temperature_30s\ascii\sst01_30s.asc
-gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\Temperature_30s\sst02_30s D:\a\data\marspec\MARSPEC_30s\Temperature_30s\ascii\sst02_30s.asc
-gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\Temperature_30s\sst03_30s D:\a\data\marspec\MARSPEC_30s\Temperature_30s\ascii\sst03_30s.asc
-gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\Temperature_30s\sst04_30s D:\a\data\marspec\MARSPEC_30s\Temperature_30s\ascii\sst04_30s.asc
-gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\Temperature_30s\sst05_30s D:\a\data\marspec\MARSPEC_30s\Temperature_30s\ascii\sst05_30s.asc
-gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\Temperature_30s\sst06_30s D:\a\data\marspec\MARSPEC_30s\Temperature_30s\ascii\sst06_30s.asc
-gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\Temperature_30s\sst07_30s D:\a\data\marspec\MARSPEC_30s\Temperature_30s\ascii\sst07_30s.asc
-gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\Temperature_30s\sst08_30s D:\a\data\marspec\MARSPEC_30s\Temperature_30s\ascii\sst08_30s.asc
-gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\Temperature_30s\sst09_30s D:\a\data\marspec\MARSPEC_30s\Temperature_30s\ascii\sst09_30s.asc
-gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\Temperature_30s\sst10_30s D:\a\data\marspec\MARSPEC_30s\Temperature_30s\ascii\sst10_30s.asc
-gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\Temperature_30s\sst11_30s D:\a\data\marspec\MARSPEC_30s\Temperature_30s\ascii\sst11_30s.asc
-gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\Temperature_30s\sst12_30s D:\a\data\marspec\MARSPEC_30s\Temperature_30s\ascii\sst12_30s.asc
+gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\biogeo08_17_30s\biogeo08_30s D:\a\data\marspec\MARSPEC_30s\ascii\biogeo08_sst_mean_30s.asc
+gdal_translate -of AAIGrid D:\a\data\marspec\MARSPEC_30s\biogeo08_17_30s\biogeo13_30s D:\a\data\marspec\MARSPEC_30s\ascii\biogeo13_sss_mean_30s.asc

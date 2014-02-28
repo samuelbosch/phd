@@ -8,7 +8,7 @@ additionally you can rename the grids to some more clear names
 
 import os
 
-root = r"D:\a\data\marspec\MARSPEC_30s\Temperature_30s"
+root = r"D:\a\data\marspec\MARSPEC_30s\biogeo08_17_30s"
 output = os.path.join(root, 'ascii')
 
 def create_bat():
@@ -51,4 +51,4 @@ def rename_biogeo_grids():
 
 if __name__ == '__main__':
     create_bat()
-    ## rename_biogeo_grids
+    ##rename_biogeo_grids
