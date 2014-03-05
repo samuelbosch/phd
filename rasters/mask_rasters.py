@@ -1,8 +1,8 @@
 import os
 
-mask = r'D:\a\data\marspec\processed\bathy_5m_mask_250.tif'
+mask = r'D:\a\data\marspec\processed\bathy_5m_mask_30s_250.asc'
 source = r'D:\a\data\BioOracle_scenarios'
-destination = r'D:\a\data\BioOracle_scenarios_min250'
+destination = source + r'_30s_min250'
 with open('mask_rasters.bat', 'w') as bat:
     ## load OSGEO4W
     bat.write(r"""@echo off
