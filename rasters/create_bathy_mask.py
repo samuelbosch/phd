@@ -18,7 +18,8 @@ def get_new_row_values(b):
         l = b.readline()
         l = l.strip('\n ').split()
         for i, v in enumerate(l):
-            if int(v) >= max_depth:
+            value = int(v)
+            if value >= max_depth or value == -32768:
                 new_row[i/10] = '1'
     return new_row
 
