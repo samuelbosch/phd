@@ -6,9 +6,9 @@ to be able to run the generated bat file you should have gdalwarp in your path o
 
 import os
 
-root = r"D:\a\data\marspec\MARSPEC_30s\ascii"
-output = os.path.abspath(os.path.join(root, r'..\ascii_equalarea'))
-
+root = r"D:\a\data\BioOracle_scenarios_30s_min250"
+output = root + r"_equal_area" #os.path.abspath(os.path.join(root, r'..\ascii_equalarea'))
+nodata = "-9999"
 
 def create_bat():
     proj = "+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs"
@@ -19,9 +19,11 @@ def create_bat():
                 if ext == '.asc':
                     ## output of ascii files from gdalwarp is not supported
                     temptiff = os.path.join(output, n + '.tiff')
-                    bat.write('gdalwarp -of GTiff -multi -t_srs "%s" "%s" "%s"\n' % (proj, os.path.join(r, f), temptiff))
+                    bat.write('gdalwarp -of GTiff -multi -srcnodata %s -dstnodata %s -t_srs "%s" "%s" "%s"\n' % (nodata, proj, os.path.join(r, f), temptiff))
                     ## convert output tiff to ascii
-                    bat.write('gdal_translate -of AAIGrid "%s" "%s"\n' % (temptiff, os.path.join(output,f)))
+                    outdir = r.replace(root, output)
+                    if not os.path.exists(outdir): os.makedirs(outdir)
+                    bat.write('gdal_translate -of AAIGrid "%s" "%s"\n' % (temptiff, os.path.join(outdir,f)))
                     ## delete temp file
                     bat.write('del "%s"\n'%temptiff)
 
