@@ -1,0 +1,10 @@
+* reading
+Fithian, W., & Hastie, T. (2013). Finite-sample equivalence in statistical models for presence-only data. The Annals of Applied Statistics, 7(4), 1917–1939. doi:10.1214/13-AOAS667
+* meeting
+EMODNET gridded data products
+-> Q: add netcdf via GeoServer REST API (http://docs.geoserver.org/stable/en/user/rest/api/)
+-> Q: show postgis layer with geoms and time with a timeslider (http://docs.geoserver.org/latest/en/user/services/wms/time.html and leaflet with timeslider plugin http://gis.stackexchange.com/questions/113629/open-source-web-map-client-with-time-sliders-using-wms-source)
+-> Q: generate mp4 from multiple gif images automatically
+* todo
+explore netcdf performance for sdm (in R and F# http://sds.codeplex.com/)
+explore cap'n proto performance for sdm (in R and F#)

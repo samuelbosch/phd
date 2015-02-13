@@ -1,0 +1,18 @@
+* howto
+- install source code version of biomod
+cd D:\misc\biomod\pkg
+package_build.bat
+package_install.bat
+- run my sdm pipeline tests
+cd "D:\a\Google Drive\vliz\obis.sdm\src\pipeline"
+run_tests.bat
+* done
+- write todo list for the next days
+- regularly clean up raster tmp dir (in executer.R)
+- write tests for biomod.formating.data get.crossvalidation.table (dataprep.R)
+* work in progress
+- create random spatially autocorrelated rasters
+* read
+CH4 A Field Guide to Genetic Programming
+* library
+Fortin & Dale Spatial Analysis: A Guide for Ecologists

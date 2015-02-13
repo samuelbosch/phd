@@ -1,0 +1,12 @@
+* done
+- update run to state error when it failed
+- redirect (error) messages per run to a separate file
+- avoid running the same planned run by checking for the number of updated records when updating the state of a run, make sure to only update runs without start date
+- create pipeline database and schema
+* work in progress
+- install envocean machine
+* read
+* library
+* notes
+* meeting
+- research planning with ODC

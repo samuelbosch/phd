@@ -1,0 +1,10 @@
+* download
+McKay, R. I. (Bob. (2001). Variants of genetic programming for species distribution modelling — fitness sharing, partial functions, population evaluation. Ecological Modelling, 146(1-3), 231–241. doi:10.1016/S0304-3800(01)00309-X
+Olden, J. D., Lawler, J. J., & Poff, N. L. (2008). Machine Learning Methods Without Tears: A Primer for Ecologists. The Quarterly Review of Biology, 83(2), 171–193. doi:10.1086/587826
+Merow, C., Smith, M. J., Edwards, T. C., Guisan, A., McMahon, S. M., Normand, S., … Elith, J. (2014). What do we gain from simplicity versus complexity in species distribution models? Ecography, (July), n/a–n/a. doi:10.1111/ecog.00845
+Keil, P., Wilson, A. M., & Jetz, W. (2014). Uncertainty, priors, autocorrelation and disparate data in downscaling of species distributions. Diversity and Distributions, 20(7), 797–812. doi:10.1111/ddi.12199
+Fithian, W., & Hastie, T. (2013). Finite-sample equivalence in statistical models for presence-only data. The Annals of Applied Statistics, 7(4), 1917–1939. doi:10.1214/13-AOAS667
+* communication
+mail to Carsten Dormann about the open research questions in his 2007 paper "Methods to account for spatial autocorrelation in the analysis of species distributional data: a review"
+* done
+work on sdm pipeline: real cross validation, started writing extra tests

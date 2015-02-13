@@ -1,0 +1,63 @@
+* economy library: 4 books
+- Feature extraction
+- Fuzzy modeling and genetic algorithms for data mining and exploration
+- Reinforcement learning: An introduction
+- A field guide to genetic programming
+* test whether spatial autocorrelation from rasters is the same with real values as it is with standardized values, conclusion they are identical as can be expected from the formula for calculating Moran's I. 
+* read
+Barbet-Massin, M., & Jetz, W. (2014). A 40-year, continent-wide, multispecies assessment of relevant climate predictors for species distribution modelling. Diversity and Distributions, n/a–n/a. doi:10.1111/ddi.12229
+* fix error with missing nodata in equal area rasters
+* installed phycas on django (OpenSuse)
+cd Programs
+curl -L http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.gz/download > boost_1_55_0.tar.gz
+tar zxvf boost_1_55_0.tar.gz
+cd boost_1_55_0
+./bootstrap.sh --with-libraries=system,chrono,thread,python
+./b2
+cd ..
+curl -L http://sourceforge.net/projects/ncl/files/latest/download > ncl-2.1.18.tar.gz
+tar zxvf ncl-2.1.18.tar.gz
+cd ncl-2.1.18
+./configure --prefix=$HOME/Programs/nclib
+make install
+mv $HOME/Programs/nclib/lib64 $HOME/Programs/nclib/lib
+cd ..
+curl -L http://www.eeb.uconn.edu/projects/phycas/downloads/v2.1/phycas-2.1.0-src.tar.gz > phycas-2.1.0-src.tar.gz
+tar zxvf phycas-2.1.0-src.tar.gz
+cp scripts/build.sh
+nano build.sh
+-- set the following values
+export PHYCAS_VERSION="2.1.0"
+export OSTYPE="linux"
+export BOOST_ROOT="$HOME/Programs/boost_1_55_0"
+export PYTHON_ROOT="/usr/bin/python"
+export NCL_INSTALL_DIR="/usr/local"
+-- save
+sudo ln -s /usr/local/lib/ncl-2.1.18 /usr/local/lib/ncl
+./build.sh
+export PYTHONPATH=$HOME/Programs/phycas-2.1.0
+export LD_LIBRARY_PATH=$HOME/Programs/phycas-2.1.0/phycas/conversions
+cd $HOME/Programs/phycas-2.1.0/tests
+python runall.py
+* read
+Martínez, B., Arenas, F., Trilla, A., Viejo, R. M., & Carreño, F. (2014). Combining physiological threshold knowledge to species distribution models is key to improving forecasts of the future niche for macroalgae. Global Change Biology, 1–12. doi:10.1111/gcb.12655
+* downloaded
+Ashcroft, M. B., French, K. O., & Chisholm, L. a. (2011). An evaluation of environmental factors affecting species distributions. Ecological Modelling, 222(3), 524–531. doi:10.1016/j.ecolmodel.2010.10.003
+Munson, M. A., Caruana, R., Fink, D., Hochachka, W. M., Iliff, M., Rosenberg, K. V., … Kelling, S. (2010). A method for measuring the relative information content of data from different monitoring protocols. Methods in Ecology and Evolution, no–no. doi:10.1111/j.2041-210X.2010.00035.x
+Watling, J. I., Romañach, S. S., Bucklin, D. N., Speroterra, C., Brandt, L. a., Pearlstine, L. G., & Mazzotti, F. J. (2012). Do bioclimate variables improve performance of climate envelope models? Ecological Modelling, 246, 79–85. doi:10.1016/j.ecolmodel.2012.07.018
+Dormann, C. F. (2007). Assessing the validity of autologistic regression. Ecological Modelling, 207(2-4), 234–242. doi:10.1016/j.ecolmodel.2007.05.002
+Dormann, C. F. (2007). Assessing the validity of autologistic regression. Ecological Modelling, 207(2-4), 234–242. doi:10.1016/j.ecolmodel.2007.05.002
+Carl, G., Dormann, C. F., & Kühn, I. (2008). A wavelet-based method to remove spatial autocorrelation in the analysis of species distributional data. Web Ecology, 8(1), 22–29. doi:10.5194/we-8-22-2008
+Carl, G., & Kühn, I. (2007). Analyzing spatial autocorrelation in species distributions using Gaussian and logit models. Ecological Modelling, 207(2-4), 159–170. doi:10.1016/j.ecolmodel.2007.04.024
+Latimer, A., & Wu, S. (2006). Building statistical models to analyze species distributions. Ecological …, 16(1), 33–50. doi:10.1890/04-0609
+Diniz-Filho, J. A. F., & Bini, L. M. (2005). Modelling geographical patterns in species richness using eigenvector-based spatial filters. Global Ecology and Biogeography, 14(2), 177–185. doi:10.1111/j.1466-822X.2005.00147.x
+Peres-Neto, P. R. (2006). A unified strategy for estimating and controlling spatial, temporal and phylogenetic autocorrelation in ecological models. Oecologia Brasiliensis, 10(01), 105–119. doi:10.4257/oeco.2006.1001.07
+Fithian, W., Elith, J., Hastie, T., & Keith, D. a. (2014). Bias correction in species distribution models: pooling survey and collection data for multiple species. Methods in Ecology and Evolution, n/a–n/a. doi:10.1111/2041-210X.12242
+Guyon, I., & Elisseeff, A. (2003). An introduction to variable and feature selection. The Journal of Machine Learning Research, 3, 1157–1182. Retrieved from http://dl.acm.org/citation.cfm?id=944968
+* screening statistics courses
+Module 5: Bayesian Statistics
+http://www.ugent.be/we/nl/diensten/ipvw-ices/aanbod/statistiek2014-2015/m5
+Module 10: Data Mining
+http://www.ugent.be/we/nl/diensten/ipvw-ices/aanbod/statistiek2014-2015/m10
+* communication:
+- e-mail Barbet-Massin about weighting marine ecoregions

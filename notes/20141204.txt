@@ -1,0 +1,8 @@
+* done
+- installed raxmlk on django
+* work in progress
+- create random spatially autocorrelated rasters with focal method from the raster package
+- install DIVA
+* read
+CH5 Field Guide to Genetic Programming
+* library

@@ -1,0 +1,35 @@
+- install envocean machine
+- pipeline database add data to the obis schema
+- decide on the next 2 conference/poster abstracts I want to write e.g. predictors of marine distribution, invasive seaweeds, OBIS QC ? discuss with ODC
+- GBIF prize (http://gbif.challengepost.com/): brainstorm ideas with ODC  e.g.  figshare2gbif plos2gbif excel2gbif // invasive species animations // expert feedback on records // subscribe to new records (alerts)
+- write 1 abstract for the VLIZ Young Marine (http://www.vliz.be/jcd/en/call-abstracts)
+- Poster vliz EnvOcean: environmental data at your fingertips (R and python package, webservice, web UI, WCS, WMS, WFS) => add emodnet data Write SDM tutorial using envOcean, register domain or do we change the name
+- integrate get.evaluation.bins methods from ENMeval in the sdm pipeline + write blog post on combining ENMeval partitioning and BIOMOD2 (http://cran.r-project.org/web/packages/ENMeval/ENMeval.pdf)
+- contact http://www.bccvl.org.au/ https://github.com/BCCVL
+- write 1 abstract for Marine Environmental Monitoring, Modelling, Prediction: http://modb.oce.ulg.ac.be/colloquium/2015/
+- register for IBS 2015 ? discuss with An & ODC
+- create random rasters with different SAC (on HPC, test first without resampling+mask, calculate Moran & Geary) Gau & Exp
+- calculate correlation matrix of generated rasters (on HPC, test first without resampling+mask)
+- if needed create rasters with different degrees of correlation e.g. by adding small random deviation (or a layer with very high SAC)
+- try to create rasters with similar histogram as layers in Bio-ORACLE
+- create mp4 from gif with R
+- create timeslider with different raster layers GeoServer ?
+- explore RF prediction performance
+- biomod: enable messages in a cleaner way (similar to raster package)
+- biomod: use .grd files with maxent when RasterStack has .grd files
+- continue reading in "A Field Guide to Genetic Programming"
+- SDMvspecies & virtualspecies: 2 virtual species packages http://onlinelibrary.wiley.com/doi/10.1111/ecog.01080/abstract
+http://borisleroy.com/files/virtualspeciestutorial.pdf
+- generate own virtual species: create SDM map in classical way THEN add a small normal error to suitability THEN treshold THEN sample
+- biased and unbiased sampling of virtual species
+- search a journal where small snippets of code can be peer-reviewed and published (ploscode: peer reviewed (micro)code publishing -> micro autoupdating R packages)
+- think about parallelizing algorithms for environmental modeling http://karssenberg.geo.uu.nl/mscParallelAlgorithms.html http://vimeopro.com/h2videonl/m4s/video/110577722 (High-performance geocomputation - Kor de Jong)
+- contribute to https://github.com/mgravell/capnproto-net/ see http://blog.marcgravell.com/2014/11/episode-2-cry-for-help.html
+
+reading backlog:
+- Feature Extraction: Foundations and Applications
+- http://freeyourmetadata.org/
+- Fortin & Dale Spatial Analysis: A Guide for Ecologists
+- Cox Fuzzy Modeling and Genetic Algorithms for Data mining and Exploration
+- Sutton Reinforcement Learning: An Introduction
+- "Probalistic Models of Cognition" https://probmods.org/

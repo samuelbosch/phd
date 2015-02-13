@@ -1,0 +1,7 @@
+* reading
+A Field Guide to Genetic Programming (Poli, Langdon, McPhee)
+* ideas
+use GP to improve the GP field (meta-GP)
+use GP to create more efficient programs
+use GP (symbolic regression) for species distribution modeling
+use GP to re-invent the basic principles of computing (operators AND, OR, XOR, ... with as goal binary addition, multiplication, ...)

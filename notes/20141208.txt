@@ -1,0 +1,10 @@
+* done
+- tried to publish netcdf layer to geoserver via REST API but failed because of issues with installing netcdf plugin on my local geoserver installation
+- planning
+- standardize new invasive distribution records from Norway
+- printend a few papers
+* work in progress
+- install envocean machine
+* read
+* library
+* notes

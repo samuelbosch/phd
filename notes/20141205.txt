@@ -1,0 +1,22 @@
+* done
+- clear.tmp in executer.R in correct way
+- install DIVA (and a whole bunch of other things to get it compiled, especially libnetcdf)
+* work in progress
+- create random spatially autocorrelated rasters with gstat
+* read
+* library
+* notes
+installing diva (http://modb.oce.ulg.ac.be/mediawiki/index.php/Diva_installation)
+
+install netcdf manually : https://www.myroms.org/forum/viewtopic.php?f=31&t=2766 (see also elifdef problem in oc/ocinternal.c)
+wget http://modb.oce.ulg.ac.be/mediawiki/upload/DIVA/releases/diva-4.6.7.tgz
+tar -xvzf diva-4.6.7.tgz
+cd diva-4.6.7/DIVA3D/src/Fortran/
+./divacompileall
+
+running diva:
+
+start cygwin
+cd ../a/prog/DIVA/diva-4.6.7/DIVA3D/divastripped
+export PATH=$PATH:.
+between if you're running the tests and get an error on Pipes, just check if in divacalc ipipe=0 and ignore the test error
