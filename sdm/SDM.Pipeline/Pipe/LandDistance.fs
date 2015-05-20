@@ -28,7 +28,7 @@ module LandDistance =
         let c = Math.Acos ((sin t1) * (sin t) + (cos t1) * (cos t) * (cos (l-l0)))
         let k = c / (sin c)
         let x = k * (cos t) * (sin (l-l0))
-        let y = k * (cos t1) * (sin t) - (sin t1) * (cos t) * (cos (l-l0))
+        let y = k * ((cos t1) * (sin t) - (sin t1) * (cos t) * (cos (l-l0)))
         (x, y)
 
     let inline buildTransformer (p:IPoint) = fun (c:Coordinate) -> coord (project p.X p.Y c.X c.Y)
